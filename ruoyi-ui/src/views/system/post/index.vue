@@ -1,157 +1,107 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="岗位编码" prop="postCode">
+    <el-form :model="form" ref="form" :inline="true" v-show="showSearch">
+      <el-form-item label="商户订单号:">
         <el-input
-          v-model="queryParams.postCode"
-          placeholder="请输入岗位编码"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
+          v-model="form.merchantOrderId"
+          placeholder="请输入商户订单号"
+        ></el-input>
       </el-form-item>
-      <el-form-item label="岗位名称" prop="postName">
-        <el-input
-          v-model="queryParams.postName"
-          placeholder="请输入岗位名称"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="岗位状态" clearable size="small">
+      <!-- <el-form-item label="用户ID:">
+          <el-input
+            v-model="form.merchantUserId"
+            placeholder="请输入用户ID"
+          ></el-input>
+        </el-form-item> -->
+      <el-form-item label="支付方式:">
+        <el-select v-model="form.paytypeId" placeholder="请选择">
           <el-option
-            v-for="dict in statusOptions"
-            :key="dict.dictValue"
-            :label="dict.dictLabel"
-            :value="dict.dictValue"
-          />
+            v-for="item in statusData"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          >
+          </el-option>
         </el-select>
       </el-form-item>
+      <el-form-item label="订单状态:">
+          <el-select v-model="form.status" placeholder="请选择">
+            <el-option
+              v-for="item in statusDatas"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+      <el-form-item  label="生成时间:" prop>
+        <el-date-picker
+         style="height: 2.5rem;"
+          class="ydateinput"
+          v-model="form.startime"
+          type="datetimerange"
+          format="yyyy-MM-dd HH:mm:ss"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        ></el-date-picker>
+      </el-form-item>
       <el-form-item>
-        <el-button type="cyan" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+        <el-button type="cyan" icon="el-icon-search" size="mini" @click="onSubmit">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        <el-button icon="el-icon-folder"  size="mini" @click="exportSubmit">导出</el-button> 
       </el-form-item>
     </el-form>
 
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-          v-hasPermi="['system:post:add']"
-        >新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['system:post:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['system:post:remove']"
-        >删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          icon="el-icon-download"
-          size="mini"
-          @click="handleExport"
-          v-hasPermi="['system:post:export']"
-        >导出</el-button>
-      </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
-
-    <el-table v-loading="loading" :data="postList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="岗位编号" align="center" prop="postId" />
-      <el-table-column label="岗位编码" align="center" prop="postCode" />
-      <el-table-column label="岗位名称" align="center" prop="postName" />
-      <el-table-column label="岗位排序" align="center" prop="postSort" />
-      <el-table-column label="状态" align="center" prop="status" :formatter="statusFormat" />
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createTime) }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:post:edit']"
-          >修改</el-button>
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['system:post:remove']"
-          >删除</el-button>
-        </template>
-      </el-table-column>
+    <el-table
+      v-loading="loading"
+      :data="tableData"
+      row-key="menuId"
+      :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+    >
+    <el-table-column fixed prop="merchantId" label="商户ID"  width="200"></el-table-column>
+    <el-table-column prop="amount" label="金额" width="160"></el-table-column>
+    <el-table-column prop="paytypeName" label="支付方式"  width="160">
+    </el-table-column>
+    <el-table-column prop="paytypeRate" label="订单费率" width="160" ></el-table-column>
+    <el-table-column prop="countryCode" label="国家码" width="160"></el-table-column>
+    <el-table-column prop="currency" label="币种代码" width="160"></el-table-column>
+    <el-table-column prop="merchantOrderId" label="商户订单ID" width="250"></el-table-column>
+    <el-table-column prop="merchantSettlementAmount" label="商户结算金额" width="250" ></el-table-column>
+    <el-table-column prop="merchantUserId" label="商户用户ID" width="250"></el-table-column>
+    <el-table-column prop="merchantUserName" label="商户用户名" width="250"></el-table-column>
+    <el-table-column prop="merchantUserEmail" label="商户用户邮箱" width="250"></el-table-column>
+    <el-table-column prop="merchantUserIp" label="商户用户名IP" width="250"></el-table-column>
+    <el-table-column prop="merchantUserPhone" label="商户用户手机号" width="250"></el-table-column>
+    <el-table-column prop="productName" label="产品名称" width="160" ></el-table-column>
+    <el-table-column prop="productDescription" label="产品描述" width="160" ></el-table-column>
+    <el-table-column prop="status" label="状态" width="100" >
+      <template slot-scope="scope">
+        <span v-if="scope.row.status==0" size="mini" >处理中</span>
+        <span v-else-if="scope.row.status==1" size="mini" >成功</span>
+        <span v-else-if="scope.row.status==2" size="mini" >失败</span>
+        <span v-else-if="scope.row.status==3" size="mini" >已结算</span>
+        <span v-else size="mini">未知状态</span>
+      </template>
+    </el-table-column>
+    <el-table-column prop="createTime" label="时间" width="180"></el-table-column>
     </el-table>
-    
-    <pagination
-      v-show="total>0"
-      :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
-      @pagination="getList"
-    />
-
-    <!-- 添加或修改岗位对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="岗位名称" prop="postName">
-          <el-input v-model="form.postName" placeholder="请输入岗位名称" />
-        </el-form-item>
-        <el-form-item label="岗位编码" prop="postCode">
-          <el-input v-model="form.postCode" placeholder="请输入编码名称" />
-        </el-form-item>
-        <el-form-item label="岗位顺序" prop="postSort">
-          <el-input-number v-model="form.postSort" controls-position="right" :min="0" />
-        </el-form-item>
-        <el-form-item label="岗位状态" prop="status">
-          <el-radio-group v-model="form.status">
-            <el-radio
-              v-for="dict in statusOptions"
-              :key="dict.dictValue"
-              :label="dict.dictValue"
-            >{{dict.dictLabel}}</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
-      </div>
-    </el-dialog>
+     <!-- 分页 -->
+     <el-pagination
+     @current-change="handleCurrentChange"
+     :page-size="pageSize"
+     prev-text="上一页"
+     next-text="下一页"
+     layout="prev, pager, next, jumper"
+     :total="total"
+   >
+   </el-pagination>
   </div>
 </template>
 
 <script>
-import { listPost, getPost, delPost, addPost, updatePost, exportPost } from "@/api/system/post";
+import { getTypepost,listPost, getPost, delPost, addPost, updatePost, exportPost } from "@/api/system/post";
 
 export default {
   name: "Post",
@@ -159,168 +109,184 @@ export default {
     return {
       // 遮罩层
       loading: true,
-      // 选中数组
-      ids: [],
-      // 非单个禁用
-      single: true,
-      // 非多个禁用
-      multiple: true,
       // 显示搜索条件
       showSearch: true,
-      // 总条数
-      total: 0,
-      // 岗位表格数据
-      postList: [],
+      // 菜单表格树数据
+      menuList: [],
+      // 菜单树选项
+      menuOptions: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
       open: false,
-      // 状态数据字典
+      // 显示状态数据字典
+      visibleOptions: [],
+      // 菜单状态数据字典
       statusOptions: [],
       // 查询参数
       queryParams: {
-        pageNum: 1,
-        pageSize: 10,
-        postCode: undefined,
-        postName: undefined,
-        status: undefined
+        menuName: undefined,
+        visible: undefined
       },
       // 表单参数
-      form: {},
-      // 表单校验
-      rules: {
-        postName: [
-          { required: true, message: "岗位名称不能为空", trigger: "blur" }
-        ],
-        postCode: [
-          { required: true, message: "岗位编码不能为空", trigger: "blur" }
-        ],
-        postSort: [
-          { required: true, message: "岗位顺序不能为空", trigger: "blur" }
-        ]
-      }
+      form: {
+        merchantId:"",
+        merchantOrderId:"",
+        merchantUserId:"",
+        paytypeId:"",
+        status:"0",
+        startime:[]
+      },
+      tableData: [],
+      statusData: [],
+      statusDatas: [
+      {
+          value: '',
+          label: '请选择'
+        },
+        {
+          value: '0',
+          label: '处理中'
+        },
+        {
+          value: '1',
+          label: '支付成功'
+        },
+        {
+          value: '2',
+          label: '支付失败'
+        },
+        {
+          value: '3',
+          label: '已结算'
+        },
+      ],
+      pageIndex: 1,
+      total: 0,
+      pageSize:10,
     };
   },
   created() {
-    this.getList();
-    this.getDicts("sys_normal_disable").then(response => {
-      this.statusOptions = response.data;
-    });
+    this.getType();
+    this.getdate();
   },
   methods: {
-    /** 查询岗位列表 */
-    getList() {
-      this.loading = true;
-      listPost(this.queryParams).then(response => {
-        this.postList = response.rows;
-        this.total = response.total;
-        this.loading = false;
-      });
+    //时间 获取
+    getdate(){
+      var myDate = new Date();
+      this.form.startime.push(new Date( myDate.getFullYear(), myDate.getMonth(),  myDate.getDate(), 0, 0))
+      this.form.startime.push(new Date( myDate.getFullYear(), myDate.getMonth(),  myDate.getDate(), 23, 59))
+      console.log('startT',this.form.startime[0])
+      console.log('endT',this.form.startime[1])
     },
-    // 岗位状态字典翻译
-    statusFormat(row, column) {
-      return this.selectDictLabel(this.statusOptions, row.status);
+    formatDate:function (date) {  
+    var y = date.getFullYear();  
+    var m = date.getMonth() + 1;  
+    m = m < 10 ? ('0' + m) : m;  
+    var d = date.getDate();  
+    d = d < 10 ? ('0' + d) : d;  
+    var h = date.getHours();  
+    h = h < 10 ? ('0' + h) : h;
+    var minute = date.getMinutes();  
+    minute = minute < 10 ? ('0' + minute) : minute; 
+    var second= date.getSeconds();  
+    second = second < 10 ? ('0' + second) : second;  
+    return y + '-' + m + '-' + d+' '+h+':'+minute+':'+ second;  
+},
+//获取支付方式
+getType() {
+  debugger
+      let self = this;
+      getTypepost({}).then(r => {
+          self.statusData = r.result
+        });
     },
-    // 取消按钮
-    cancel() {
-      this.open = false;
-      this.reset();
+  //查询
+  onSubmit() {
+    this.pageIndex = 1;
+    this.getList();
     },
-    // 表单重置
-    reset() {
-      this.form = {
-        postId: undefined,
-        postCode: undefined,
-        postName: undefined,
-        postSort: 0,
-        status: "0",
-        remark: undefined
-      };
-      this.resetForm("form");
+handleSizeChange(val) {
+      console.log(`每页 ${val} 条`);
     },
-    /** 搜索按钮操作 */
-    handleQuery() {
-      this.queryParams.pageNum = 1;
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`);
+      this.pageIndex = val;
       this.getList();
+    },
+    /** 查询菜单列表 */
+   
+    getList() {
+      debugger
+      let self = this;
+      self.loading = true;
+      let obj={
+        "pageNum":self.pageIndex,
+    "size":self.pageSize,
+    "orderID":self.form.merchantId,
+    "merchantOrderID":self.form.merchantOrderId,
+    "paytp":self.form.paytypeId,
+    "status":self.form.status,
+    "startTime":self.formatDate(self.form.startime[0]),
+    "endTime":self.formatDate(self.form.startime[1])
+      }
+      listPost(obj).then(r => {
+         //console.log(r.data.total_count);
+         self.tableData = r.result.list;
+          self.total = r.result.total;
+          self.loading = false;
+      });
     },
     /** 重置按钮操作 */
     resetQuery() {
-      this.resetForm("queryForm");
-      this.handleQuery();
+      this.getList();
     },
-    // 多选框选中数据
-    handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.postId)
-      this.single = selection.length!=1
-      this.multiple = !selection.length
-    },
-    /** 新增按钮操作 */
-    handleAdd() {
-      this.reset();
-      this.open = true;
-      this.title = "添加岗位";
-    },
-    /** 修改按钮操作 */
-    handleUpdate(row) {
-      this.reset();
-      const postId = row.postId || this.ids
-      getPost(postId).then(response => {
-        this.form = response.data;
-        this.open = true;
-        this.title = "修改岗位";
-      });
-    },
-    /** 提交按钮 */
-    submitForm: function() {
-      this.$refs["form"].validate(valid => {
-        if (valid) {
-          if (this.form.postId != undefined) {
-            updatePost(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess("修改成功");
-                this.open = false;
-                this.getList();
-              }
-            });
-          } else {
-            addPost(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess("新增成功");
-                this.open = false;
-                this.getList();
-              }
-            });
-          }
+    // 导出
+    exportSubmit(){
+     // 列标题，逗号隔开，每一个逗号就是隔开一个单元格
+     let str = `商户ID,金额,支付方式,订单费率,国家码,币种代码,商户订单ID,商户结算金额,商户用户ID,商户用户名,商户用户邮箱,商户用户手机号,产品名称,产品描述,时间\n`;
+     let jsonData = []
+     for(let i = 0 ; i < this.tableData.length ; i++ ){
+        let obj={
+                merchantId:this.tableData[i].merchantId,
+                amount:this.tableData[i].amount,
+                paytypeName:this.tableData[i].paytypeName,
+                paytypeRate:this.tableData[i].paytypeRate,
+                countryCode:this.tableData[i].countryCode,
+                currency:this.tableData[i].currency,
+                merchantOrderId:this.tableData[i].merchantOrderId,
+                merchantSettlementAmount:this.tableData[i].merchantSettlementAmount,
+                merchantUserId:this.tableData[i].merchantUserId,
+                merchantUserName:this.tableData[i].merchantUserName,
+                merchantUserEmail:this.tableData[i].merchantUserEmail,
+                merchantUserPhone:this.tableData[i].merchantUserPhone,
+                productName:this.tableData[i].productName,
+                productDescription:this.tableData[i].productDescription,
+                createTime:this.tableData[i].createTime
+                  
+            }
+            jsonData.push(obj)
         }
-      });
-    },
-    /** 删除按钮操作 */
-    handleDelete(row) {
-      const postIds = row.postId || this.ids;
-      this.$confirm('是否确认删除岗位编号为"' + postIds + '"的数据项?', "警告", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }).then(function() {
-          return delPost(postIds);
-        }).then(() => {
-          this.getList();
-          this.msgSuccess("删除成功");
-        }).catch(function() {});
-    },
-    /** 导出按钮操作 */
-    handleExport() {
-      const queryParams = this.queryParams;
-      this.$confirm('是否确认导出所有岗位数据项?', "警告", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }).then(function() {
-          return exportPost(queryParams);
-        }).then(response => {
-          this.download(response.msg);
-        }).catch(function() {});
-    }
-  }
+   
+     // 增加\t为了不让表格显示科学计数法或者其他格式
+        for(let j = 0 ; j < jsonData.length ; j++ ){
+            for(const key in jsonData[j]){
+                str+=`${ jsonData[j][key] + '\t'},`;     
+            }
+            str+='\n';
+        }
+        // encodeURIComponent解决中文乱码
+        const uri = 'data:text/csv;charset=utf-8,\ufeff' + encodeURIComponent(str);
+        // 通过创建a标签实现
+        const link = document.createElement("a");
+        link.href = uri;
+        // 对下载的文件命名
+        link.download =  "订单信息.csv";
+        link.click();
+      }
+  },
+  mounted() {
+    this.getList();
+  },
 };
 </script>

@@ -1,199 +1,133 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch">
-      <el-form-item label="菜单名称" prop="menuName">
+    <el-form :model="form" ref="form" :inline="true" v-show="showSearch">
+      <el-form-item label="充值申请单号:">
         <el-input
-          v-model="queryParams.menuName"
-          placeholder="请输入菜单名称"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
+          v-model="form.billId"
+          placeholder="请输入提现申请单号"
+        ></el-input>
       </el-form-item>
-      <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="菜单状态" clearable size="small">
+      <el-form-item label="充值状态:">
+        <el-select v-model="form.status" placeholder="请选择">
+          <el-option>请选择</el-option>
           <el-option
-            v-for="dict in statusOptions"
-            :key="dict.dictValue"
-            :label="dict.dictLabel"
-            :value="dict.dictValue"
-          />
+            v-for="item in statusData"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          >
+          </el-option>
         </el-select>
       </el-form-item>
+      <el-form-item label="充值申请时间:" prop>
+        <el-date-picker
+          style="height: 2.5rem;"
+          class="ydateinput"
+          v-model="form.startime"
+          type="datetimerange"
+          format="yyyy-MM-dd HH:mm:ss"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          
+        ></el-date-picker>
+      </el-form-item>
       <el-form-item>
-        <el-button type="cyan" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+        <el-button type="cyan" icon="el-icon-search" size="mini" @click="onSubmit">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-          v-hasPermi="['system:menu:add']"
-        >新增</el-button>
-      </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
-
     <el-table
       v-loading="loading"
-      :data="menuList"
+      :data="tableData"
       row-key="menuId"
       :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
     >
-      <el-table-column prop="menuName" label="菜单名称" :show-overflow-tooltip="true" width="160"></el-table-column>
-      <el-table-column prop="icon" label="图标" align="center" width="100">
-        <template slot-scope="scope">
-          <svg-icon :icon-class="scope.row.icon" />
-        </template>
-      </el-table-column>
-      <el-table-column prop="orderNum" label="排序" width="60"></el-table-column>
-      <el-table-column prop="perms" label="权限标识" :show-overflow-tooltip="true"></el-table-column>
-      <el-table-column prop="component" label="组件路径" :show-overflow-tooltip="true"></el-table-column>
-      <el-table-column prop="status" label="状态" :formatter="statusFormat" width="80"></el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createTime) }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <el-button size="mini" 
-            type="text" 
-            icon="el-icon-edit" 
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:menu:edit']"
-          >修改</el-button>
-          <el-button 
-            size="mini" 
-            type="text" 
-            icon="el-icon-plus" 
-            @click="handleAdd(scope.row)"
-            v-hasPermi="['system:menu:add']"
-          >新增</el-button>
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['system:menu:remove']"
-          >删除</el-button>
-        </template>
-      </el-table-column>
+    <el-table-column
+    prop="id"
+    label="充值申请单号"
+    width=""
+  ></el-table-column>
+  <el-table-column
+    prop="amount"
+    label="充值金额"
+    width=""
+  ></el-table-column>
+  <el-table-column
+    prop="rechargeAmount"
+    label="充值服务费"
+    width=""
+  ></el-table-column>
+  <el-table-column
+    prop="currency"
+    label="到账币种"
+    width=""
+  ></el-table-column>
+  <el-table-column
+  prop="successAmount"
+  label="到账金额"
+  width=""
+></el-table-column>
+<el-table-column
+  prop="successDate"
+  label="到账日期"
+  width=""
+>
+</el-table-column>
+<el-table-column
+  prop="status"
+  label="充值状态"
+  width=""
+>
+<template slot-scope="scope">
+  <span
+  v-if="scope.row.createTime==1"
+    size="mini"
+  >支付完成</span>
+  <span
+  v-else-if="scope.row.status==2"
+    size="mini"
+  >审核不通过</span>
+  <span
+  v-else-if="scope.row.status==3"
+    size="mini"
+  >审核通过</span>
+  <span
+  v-else-if="scope.row.status==4"
+  size="mini"
+>支付处理中</span>
+  <span
+  v-else-if="scope.row.status==5"
+  size="mini"
+>支付处理失败</span>
+<span
+v-else
+  size="mini"
+>审批中</span>
+</template>
+</el-table-column>
+<el-table-column
+prop="createTime"
+label="申请充值时间"
+width=""
+></el-table-column>
+<el-table-column
+prop="updateTime"
+label="更新时间"
+width=""
+></el-table-column>
     </el-table>
-
-    <!-- 添加或修改菜单对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-row>
-          <el-col :span="24">
-            <el-form-item label="上级菜单">
-              <treeselect
-                v-model="form.parentId"
-                :options="menuOptions"
-                :normalizer="normalizer"
-                :show-count="true"
-                placeholder="选择上级菜单"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item label="菜单类型" prop="menuType">
-              <el-radio-group v-model="form.menuType">
-                <el-radio label="M">目录</el-radio>
-                <el-radio label="C">菜单</el-radio>
-                <el-radio label="F">按钮</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item v-if="form.menuType != 'F'" label="菜单图标">
-              <el-popover
-                placement="bottom-start"
-                width="460"
-                trigger="click"
-                @show="$refs['iconSelect'].reset()"
-              >
-                <IconSelect ref="iconSelect" @selected="selected" />
-                <el-input slot="reference" v-model="form.icon" placeholder="点击选择图标" readonly>
-                  <svg-icon
-                    v-if="form.icon"
-                    slot="prefix"
-                    :icon-class="form.icon"
-                    class="el-input__icon"
-                    style="height: 32px;width: 16px;"
-                  />
-                  <i v-else slot="prefix" class="el-icon-search el-input__icon" />
-                </el-input>
-              </el-popover>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="菜单名称" prop="menuName">
-              <el-input v-model="form.menuName" placeholder="请输入菜单名称" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="显示排序" prop="orderNum">
-              <el-input-number v-model="form.orderNum" controls-position="right" :min="0" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item v-if="form.menuType != 'F'" label="是否外链">
-              <el-radio-group v-model="form.isFrame">
-                <el-radio label="0">是</el-radio>
-                <el-radio label="1">否</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item v-if="form.menuType != 'F'" label="路由地址" prop="path">
-              <el-input v-model="form.path" placeholder="请输入路由地址" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12" v-if="form.menuType == 'C'">
-            <el-form-item label="组件路径" prop="component">
-              <el-input v-model="form.component" placeholder="请输入组件路径" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item v-if="form.menuType != 'M'" label="权限标识">
-              <el-input v-model="form.perms" placeholder="请权限标识" maxlength="50" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item v-if="form.menuType != 'F'" label="显示状态">
-              <el-radio-group v-model="form.visible">
-                <el-radio
-                  v-for="dict in visibleOptions"
-                  :key="dict.dictValue"
-                  :label="dict.dictValue"
-                >{{dict.dictLabel}}</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item v-if="form.menuType != 'F'" label="菜单状态">
-              <el-radio-group v-model="form.status">
-                <el-radio
-                  v-for="dict in statusOptions"
-                  :key="dict.dictValue"
-                  :label="dict.dictValue"
-                >{{dict.dictLabel}}</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
-      </div>
-    </el-dialog>
+     <!-- 分页 -->
+     <el-pagination
+     @current-change="handleCurrentChange"
+     :page-size="pageSize"
+     prev-text="上一页"
+     next-text="下一页"
+     layout="prev, pager, next, jumper"
+     :total="total"
+   >
+   </el-pagination>
   </div>
 </template>
 
@@ -230,165 +164,110 @@ export default {
         visible: undefined
       },
       // 表单参数
-      form: {},
-      // 表单校验
-      rules: {
-        menuName: [
-          { required: true, message: "菜单名称不能为空", trigger: "blur" }
-        ],
-        orderNum: [
-          { required: true, message: "菜单顺序不能为空", trigger: "blur" }
-        ],
-        path: [
-          { required: true, message: "路由地址不能为空", trigger: "blur" }
-        ]
-      }
+      form: {
+        startime:[],
+        status: 0,
+        billId: ""
+      },
+      statusData: [
+        {
+          value: 0,
+          label: "审批中"
+        },
+        {
+          value: 1,
+          label: "支付完成"
+        },
+        {
+          value: 2,
+          label: "审核不通过"
+        },
+        {
+          value: 3,
+          label: "审核通过"
+        },
+        {
+          value: 4,
+          label: "支付处理中"
+        },
+        {
+          value: 5,
+          label: "支付处理失败"
+        },
+      ],
+      tableData: [],
+      pageIndex: 1,
+      pageSize:10,
+      total: 0,
     };
   },
   created() {
-    this.getList();
-    this.getDicts("sys_show_hide").then(response => {
-      this.visibleOptions = response.data;
-    });
-    this.getDicts("sys_normal_disable").then(response => {
-      this.statusOptions = response.data;
-    });
+    this.getdate();
   },
   methods: {
-    // 选择图标
-    selected(name) {
-      this.form.icon = name;
+    //时间 获取
+    getdate(){
+      var myDate = new Date();
+      this.form.startime.push(new Date( myDate.getFullYear(), myDate.getMonth(),  myDate.getDate(), 0, 0))
+      this.form.startime.push(new Date( myDate.getFullYear(), myDate.getMonth(),  myDate.getDate(), 23, 59))
+      console.log('startT',this.form.startime[0])
+      console.log('endT',this.form.startime[1])
+    },
+    formatDate:function (date) {  
+    var y = date.getFullYear();  
+    var m = date.getMonth() + 1;  
+    m = m < 10 ? ('0' + m) : m;  
+    var d = date.getDate();  
+    d = d < 10 ? ('0' + d) : d;  
+    var h = date.getHours();  
+    h = h < 10 ? ('0' + h) : h;
+    var minute = date.getMinutes();  
+    minute = minute < 10 ? ('0' + minute) : minute; 
+    var second= date.getSeconds();  
+    second = second < 10 ? ('0' + second) : second;  
+    return y + '-' + m + '-' + d+' '+h+':'+minute+':'+ second;  
+},
+  //查询
+  onSubmit() {
+    this.pageIndex = 1;
+    this.getList();
+    },
+handleSizeChange(val) {
+      console.log(`每页 ${val} 条`);
+    },
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`);
+      this.pageIndex = val;
+      this.getList();
     },
     /** 查询菜单列表 */
+   
     getList() {
-      this.loading = true;
-      listMenu(this.queryParams).then(response => {
-        this.menuList = this.handleTree(response.data, "menuId");
-        this.loading = false;
+      debugger
+      let self = this;
+      self.loading = true;
+      let obj={
+        page: self.pageIndex,
+          size: self.pageSize,
+          startTime: self.formatDate(self.form.startime[0]),
+          endTime: self.formatDate(self.form.startime[1]),
+          status: self.form.status?self.form.status:0,//订单状态，0审批中，1支付完成，2审核不通过，3审核通过，4支付处理中，5支付处理失败
+          billId: self.form.billId,//流水号，支持模糊查询
+      }
+      listMenu(obj).then(r => {
+         //console.log(r.data.total_count);
+         self.tableData = r.result.list;
+          self.total = r.result.total;
+          self.loading = false;
       });
-    },
-    /** 转换菜单数据结构 */
-    normalizer(node) {
-      if (node.children && !node.children.length) {
-        delete node.children;
-      }
-      return {
-        id: node.menuId,
-        label: node.menuName,
-        children: node.children
-      };
-    },
-    /** 查询菜单下拉树结构 */
-    getTreeselect() {
-      listMenu().then(response => {
-        this.menuOptions = [];
-        const menu = { menuId: 0, menuName: '主类目', children: [] };
-        menu.children = this.handleTree(response.data, "menuId");
-        this.menuOptions.push(menu);
-      });
-    },
-    // 显示状态字典翻译
-    visibleFormat(row, column) {
-      if (row.menuType == "F") {
-        return "";
-      }
-      return this.selectDictLabel(this.visibleOptions, row.visible);
-    },
-    // 菜单状态字典翻译
-    statusFormat(row, column) {
-      if (row.menuType == "F") {
-        return "";
-      }
-      return this.selectDictLabel(this.statusOptions, row.status);
-    },
-    // 取消按钮
-    cancel() {
-      this.open = false;
-      this.reset();
-    },
-    // 表单重置
-    reset() {
-      this.form = {
-        menuId: undefined,
-        parentId: 0,
-        menuName: undefined,
-        icon: undefined,
-        menuType: "M",
-        orderNum: undefined,
-        isFrame: "1",
-        visible: "0",
-        status: "0"
-      };
-      this.resetForm("form");
-    },
-    /** 搜索按钮操作 */
-    handleQuery() {
-      this.getList();
     },
     /** 重置按钮操作 */
     resetQuery() {
-      this.resetForm("queryForm");
-      this.handleQuery();
+      this.getList();
     },
-    /** 新增按钮操作 */
-    handleAdd(row) {
-      this.reset();
-      this.getTreeselect();
-      if (row != null && row.menuId) {
-        this.form.parentId = row.menuId;
-      } else {
-        this.form.parentId = 0;
-      }
-      this.open = true;
-      this.title = "添加菜单";
-    },
-    /** 修改按钮操作 */
-    handleUpdate(row) {
-      this.reset();
-      this.getTreeselect();
-      getMenu(row.menuId).then(response => {
-        this.form = response.data;
-        this.open = true;
-        this.title = "修改菜单";
-      });
-    },
-    /** 提交按钮 */
-    submitForm: function() {
-      this.$refs["form"].validate(valid => {
-        if (valid) {
-          if (this.form.menuId != undefined) {
-            updateMenu(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess("修改成功");
-                this.open = false;
-                this.getList();
-              }
-            });
-          } else {
-            addMenu(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess("新增成功");
-                this.open = false;
-                this.getList();
-              }
-            });
-          }
-        }
-      });
-    },
-    /** 删除按钮操作 */
-    handleDelete(row) {
-      this.$confirm('是否确认删除名称为"' + row.menuName + '"的数据项?', "警告", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }).then(function() {
-          return delMenu(row.menuId);
-        }).then(() => {
-          this.getList();
-          this.msgSuccess("删除成功");
-        }).catch(function() {});
-    }
-  }
+  },
+  mounted() {
+    this.getList();
+  },
 };
 </script>

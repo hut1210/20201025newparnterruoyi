@@ -1,6 +1,66 @@
 import request from '@/utils/request'
 import { praseStrEmpty } from "@/utils/ruoyi";
+// 商户认证信息提交
+export function addManage(data) {
+  return request({
+    url: '/gpmanage/partner/merchant/bind',
+    method: 'post',
+    data: data
+  })
+}
 
+// 商户认证信息文件提交
+export function fileadd(data) {
+  return request({
+    url: '/gpmanage/partner/merchant/certif',
+    method: 'post',
+    data: data
+  })
+}
+// 商户认证信息查询
+export function getJobmess() {
+  return request({
+    url: '/gpmanage/partner/merchant/info',
+    method: 'get',
+    
+  })
+}
+// 查询费率
+export function getRequestRate(data) {
+  return request({
+    url: '/core/api/payment/merchant/rate',
+    method: 'post',
+    data:data
+   
+  })
+}
+// 充值
+      export function   requestAddManagecz(data) {
+  return request({
+    url: '/core/api/payment/recharge',
+    method: 'post',
+    data: data
+   
+  })
+}
+// 提现
+export function   requestAddManagetx(data) {
+  return request({
+    url: '/core/manager/withdraw',
+    method: 'post',
+    data: data
+   
+  })
+}
+// 代付
+export function  requestAddManagedf(data) {
+  return request({
+    url: '/core/api/payment/paymentout',
+    method: 'post',
+    data: data
+   
+  })
+}
 // 查询用户列表
 export function listUser(query) {
   return request({

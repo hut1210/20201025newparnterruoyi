@@ -1,11 +1,11 @@
 import request from '@/utils/request'
 
-// 查询部门列表
-export function listDept(query) {
+// 查询详情列表
+export function listDept(data) {
   return request({
-    url: 'http://localhost:8090/system/dept/list',
-    method: 'get',
-    params: query
+    url: '/core/api/payment/payout/detaillist',
+    method: 'post',
+    data: data
   })
 }
 

@@ -14,7 +14,6 @@ export function formatDate(cellValue) {
   var seconds = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds()
   return year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds
 }
-
 /**
  * @param {number} time
  * @param {string} option

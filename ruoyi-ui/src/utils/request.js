@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { Notification, MessageBox, Message } from 'element-ui'
 import store from '@/store'
-import { getToken } from '@/utils/auth'
+import { getToken, setToken, removeToken,setloc ,getloc } from '@/utils/auth'
 import errorCode from '@/utils/errorCode'
 
 axios.defaults.headers['Content-Type'] = 'application/json;charset=utf-8'
@@ -10,15 +10,53 @@ const service = axios.create({
   // axios中请求配置有baseURL选项，表示请求URL公共部分
   baseURL: process.env.VUE_APP_BASE_API,
   // 超时
-  timeout: 10000
+  timeout: 10000,
+  
 })
+var root = process.env.NODE_ENV == 'development' ? '/api' : 'http://api.teststwo.com'
+function filterNull (o) {
+  for (var key in o) {
+    if (o[key] === null) {
+      delete o[key]
+    }
+    if (toType(o[key]) === 'string') {
+      o[key] = o[key].trim()
+    } else if (toType(o[key]) === 'object') {
+      o[key] = filterNull(o[key])
+    } else if (toType(o[key]) === 'array') {
+      o[key] = filterNull(o[key])
+    }
+  }
+  return o
+}
+// 自定义判断元素类型JS
+function toType (obj) {
+  return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
+}
 // request拦截器
 service.interceptors.request.use(config => {
-  // 是否需要设置 token
-  const isToken = (config.headers || {}).isToken === false
-  if (getToken() && !isToken) {
-    config.headers['Authorization'] = 'Bearer ' + getToken() // 让每个请求携带自定义token 请根据实际情况自行修改
+  debugger
+  if (config.data && config.url!="/core/api/payment/paymentout") {
+    config.data = filterNull(config.data)
+    
   }
+ let obj= "Bearer " + getToken()
+ 
+ if(config.url=="/gpauth/partner/merchant/users/login" || config.url=="/gpauth/partner/merchant/users/add"){
+    obj="";
+ }
+  // 是否需要设置 token
+  // const isToken = (config.headers || {}).isToken === false
+  if (getToken() ) {
+    config.headers['Authorization'] = obj // 让每个请求携带自定义token 请根据实际情况自行修改
+    
+  }
+  if(config.data){
+    config.data=(config.method == 'post' || config.method == 'put' ? config.data : null)
+  }
+  if (config.params ){
+  config.params=(config.method == 'get' || config.method == 'delete' ? config.data : null)
+}
   return config
 }, error => {
     console.log(error)
@@ -49,7 +87,7 @@ service.interceptors.response.use(res => {
         type: 'error'
       })
       return Promise.reject(new Error(msg))
-    } else if (code !== 200 && code!==1000) {
+    } else if (code !== 200 && code<1000) {
       Notification.error({
         title: msg
       })
@@ -78,5 +116,8 @@ service.interceptors.response.use(res => {
     return Promise.reject(error)
   }
 )
-
+        
+export function getUrlTitle(){
+  return root;
+}
 export default service

@@ -1,19 +1,20 @@
 import request from '@/utils/request'
 
 // 查询岗位列表
-export function listPost(query) {
+export function listPost(data) {
   return request({
-    url: 'http://localhost:8090/system/post/list',
-    method: 'get',
-    params: query
+    url: '/gpmanage/partner/merchant/orders',
+    method: 'post',
+   data:data
   })
 }
 
-// 查询岗位详细
-export function getPost(postId) {
+// 状态
+export function getTypepost(query) {
   return request({
-    url: 'http://localhost:8090/system/post/' + postId,
-    method: 'get'
+    url: '/core/manager/pay/type',
+    method: 'get',
+    params: query
   })
 }
 

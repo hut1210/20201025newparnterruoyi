@@ -1,32 +1,34 @@
 import request from '@/utils/request'
 
 // 登录方法
-export function login(email, pwd,nick,cfpassword,source) {
+export function login(email, pwd) {
   
   const data = {
     pwd,
-    email,
-    nick,
-    cfpassword,
-    source
-
-    
+    email
   }
-  if(cfpassword){
-  return request({
-    url: '/gpauth/partner/merchant/users/add',
-    method: 'post',
-    data: data
-  })
-}else{
   return request({
     url: '/gpauth/partner/merchant/users/login',
     method: 'post',
     data: data
   })
 }
+debugger
+// 登录方法
+export function loginadd(email, pwd,nick,cfpassword,source) {
+  const data = {
+    pwd,
+    email,
+    nick,
+    cfpassword,
+    source
+  }
+  return request({
+    url: '/gpauth/partner/merchant/users/add',
+    method: 'post',
+    data: data
+  })
 }
-
 
 // 获取用户详细信息
 export function getInfo() {

@@ -4,12 +4,9 @@
       <el-col :span="6" :xs="24">
         <el-card class="box-card">
           <div slot="header" class="clearfix">
-            <span>个人信息</span>
+            <span>商户配置参数:</span>
           </div>
           <div>
-            <div class="text-center">
-              <userAvatar :user="user" />
-            </div>
             <ul class="list-group list-group-striped">
               <li class="list-group-item">
                 <svg-icon icon-class="user" />用户名称

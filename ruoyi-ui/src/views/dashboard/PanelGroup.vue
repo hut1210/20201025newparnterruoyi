@@ -3,52 +3,58 @@
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
       <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
         <div class="card-panel-icon-wrapper icon-people">
-          <svg-icon icon-class="peoples" class-name="card-panel-icon" />
+          <h1 class="icon-money-h1"> ₹</h1>
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            访客
+            账户总余额
           </div>
-          <count-to :start-val="0" :end-val="102400" :duration="2600" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="objmessge.totalBalance" :duration="2600" class="card-panel-num" />
         </div>
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
       <div class="card-panel" @click="handleSetLineChartData('messages')">
         <div class="card-panel-icon-wrapper icon-message">
-          <svg-icon icon-class="message" class-name="card-panel-icon" />
+          <h1 class="icon-money-h1"> ₹</h1>
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            消息
+            可用余额
           </div>
-          <count-to :start-val="0" :end-val="81212" :duration="3000" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="objmessge.availableBalance" :duration="3000" class="card-panel-num" />
         </div>
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
       <div class="card-panel" @click="handleSetLineChartData('purchases')">
         <div class="card-panel-icon-wrapper icon-money">
-          <svg-icon icon-class="money" class-name="card-panel-icon" />
+         <h1 class="icon-money-h1"> ₹</h1>
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            金额
+            不可用余额
           </div>
-          <count-to :start-val="0" :end-val="9280" :duration="3200" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="objmessge.blockedBalance" :duration="3200" class="card-panel-num" />
         </div>
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('shoppings')">
-        <div class="card-panel-icon-wrapper icon-shopping">
-          <svg-icon icon-class="shopping" class-name="card-panel-icon" />
-        </div>
-        <div class="card-panel-description">
-          <div class="card-panel-text">
-            订单
-          </div>
-          <count-to :start-val="0" :end-val="13600" :duration="3600" class="card-panel-num" />
+      <div class="card-panel" style="
+      display: flex;
+      justify-content: center;
+      align-items: center;"
+  >
+        <div calss="use-hand" >
+          <el-button size="medium" round @click="btModifyWindow(1)"
+            >充值</el-button
+          >
+          <!-- <el-button size="medium" round @click="btModifyWindow(2)"
+            >提现</el-button
+          > -->
+          <el-button size="medium" round @click="btModifyWindow(3)"
+            >代付</el-button
+          >
         </div>
       </div>
     </el-col>
@@ -59,12 +65,34 @@
 import CountTo from 'vue-count-to'
 
 export default {
+
+  props: {
+    objmessge: {},
+  },
+  
   components: {
     CountTo
+  },
+  data() {
+    return{
+ 
+    }
   },
   methods: {
     handleSetLineChartData(type) {
       this.$emit('handleSetLineChartData', type)
+    },
+    btModifyWindow:function(v){
+      this.$emit("btModifyWindow", v);
+      // if(v==1){
+      //   this.ModifyWindow=true;
+      //   this.getrate();
+      // }else if(v==2){
+      //   this.getrate();
+      //   this.ModifyWindow1=true;
+      // }else {
+      //   this.ModifyWindow2=true;
+      // }
     }
   }
 }
@@ -129,12 +157,15 @@ export default {
 
     .card-panel-icon-wrapper {
       float: left;
-      margin: 14px 0 0 14px;
-      padding: 16px;
+       margin: 5px 0 0 5px;
+      padding: 0px 38px;
+      
       transition: all 0.38s ease-out;
       border-radius: 6px;
     }
-
+    .icon-money-h1{
+      font-size:3em;
+    }
     .card-panel-icon {
       float: left;
       font-size: 48px;
@@ -158,7 +189,9 @@ export default {
       }
     }
   }
+  
 }
+
 
 @media (max-width:550px) {
   .card-panel-description {

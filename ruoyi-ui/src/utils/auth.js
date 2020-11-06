@@ -15,20 +15,18 @@ export function removeToken() {
 }
 // 本地存储
 var localStorage = window.localStorage
-function getloc (name) {
+export function getloc (name) {
+
   var value = localStorage.getItem(name)
   if (/^\{.*\}$/.test(value)) {
     value = JSON.parse(value)
   }
   return value
 }
-function setloc (name, value) {
-  if (typeof value === typeof {}) {
-    value = JSON.stringify(value)
-  }
+export function setloc (name, value) {
   return localStorage.setItem(name, value)
 }
-function removeloc (name) {
+export function removeloc (name) {
   return localStorage.removeItem(name)
 }
 // 获取链接参数
@@ -83,112 +81,31 @@ export function getRoters(){
       "component": "Layout",
       "alwaysShow": true,
       "meta": {
-        "title": "系统管理",
+        "title": "商户信息管理",
         "icon": "system"
       },
-      "children": [{
+      "children": [
+        {
+          "name": "MerchantUser",
+          "path": "/merchantUser",
+          "hidden": false,
+          "component": "system/add-user/index",
+          "meta": {
+            "title": "商户资质信息",
+            "icon": "peoples"
+          }
+        },
+        {
         "name": "User",
         "path": "user",
         "hidden": false,
-        "component": "system/user/index",
+        "component": "system/add-user/make-user",
         "meta": {
-          "title": "用户管理",
+          "title": "商户配置参数",
           "icon": "user"
         }
-      }, {
-        "name": "Role",
-        "path": "role",
-        "hidden": false,
-        "component": "system/role/index",
-        "meta": {
-          "title": "角色管理",
-          "icon": "peoples"
-        }
-      }, {
-        "name": "Menu",
-        "path": "menu",
-        "hidden": false,
-        "component": "system/menu/index",
-        "meta": {
-          "title": "菜单管理",
-          "icon": "tree-table"
-        }
-      }, {
-        "name": "Dept",
-        "path": "dept",
-        "hidden": false,
-        "component": "system/dept/index",
-        "meta": {
-          "title": "部门管理",
-          "icon": "tree"
-        }
-      }, {
-        "name": "Post",
-        "path": "post",
-        "hidden": false,
-        "component": "system/post/index",
-        "meta": {
-          "title": "岗位管理",
-          "icon": "post"
-        }
-      }, {
-        "name": "Dict",
-        "path": "dict",
-        "hidden": false,
-        "component": "system/dict/index",
-        "meta": {
-          "title": "字典管理",
-          "icon": "dict"
-        }
-      }, {
-        "name": "Config",
-        "path": "config",
-        "hidden": false,
-        "component": "system/config/index",
-        "meta": {
-          "title": "参数设置",
-          "icon": "edit"
-        }
-      }, {
-        "name": "Notice",
-        "path": "notice",
-        "hidden": false,
-        "component": "system/notice/index",
-        "meta": {
-          "title": "通知公告",
-          "icon": "message"
-        }
-      }, {
-        "name": "Log",
-        "path": "log",
-        "hidden": false,
-        "redirect": "noRedirect",
-        "component": "system/log/index",
-        "alwaysShow": true,
-        "meta": {
-          "title": "日志管理",
-          "icon": "log"
-        },
-        "children": [{
-          "name": "Operlog",
-          "path": "operlog",
-          "hidden": false,
-          "component": "monitor/operlog/index",
-          "meta": {
-            "title": "操作日志",
-            "icon": "form"
-          }
-        }, {
-          "name": "Logininfor",
-          "path": "logininfor",
-          "hidden": false,
-          "component": "monitor/logininfor/index",
-          "meta": {
-            "title": "登录日志",
-            "icon": "logininfor"
-          }
-        }]
-      }]
+      }
+      ]
     }, {
       "name": "Monitor",
       "path": "/monitor",
@@ -197,17 +114,17 @@ export function getRoters(){
       "component": "Layout",
       "alwaysShow": true,
       "meta": {
-        "title": "系统监控",
+        "title": "资金管理",
         "icon": "monitor"
       },
       "children": [{
-        "name": "Online",
-        "path": "online",
+        "name": "Menu",
+        "path": "menu",
         "hidden": false,
-        "component": "monitor/online/index",
+        "component": "system/menu/index",
         "meta": {
-          "title": "在线用户",
-          "icon": "online"
+          "title": "充值记录",
+          "icon": "tree-table"
         }
       }, {
         "name": "Job",
@@ -215,28 +132,19 @@ export function getRoters(){
         "hidden": false,
         "component": "monitor/job/index",
         "meta": {
-          "title": "定时任务",
+          "title": "代付记录",
           "icon": "job"
         }
-      }, {
-        "name": "Druid",
-        "path": "druid",
-        "hidden": false,
-        "component": "monitor/druid/index",
+      },  {
+        "name": "Dept",
+        "path": "dept",
+        "hidden": true,
+        "component": "system/dept/index",
         "meta": {
-          "title": "数据监控",
-          "icon": "druid"
+          "title": "代付记录详情",
+          "icon": "tree"
         }
-      }, {
-        "name": "Server",
-        "path": "server",
-        "hidden": false,
-        "component": "monitor/server/index",
-        "meta": {
-          "title": "服务监控",
-          "icon": "server"
-        }
-      }]
+      }, ]
     }, {
       "name": "Tool",
       "path": "/tool",
@@ -245,44 +153,26 @@ export function getRoters(){
       "component": "Layout",
       "alwaysShow": true,
       "meta": {
-        "title": "系统工具",
+        "title": "交易管理",
         "icon": "tool"
       },
       "children": [{
-        "name": "Build",
-        "path": "build",
+        "name": "Post",
+        "path": "post",
         "hidden": false,
-        "component": "tool/build/index",
+        "component": "system/post/index",
         "meta": {
-          "title": "表单构建",
-          "icon": "build"
+          "title": "订单信息查询",
+          "icon": "post"
         }
-      }, {
-        "name": "Gen",
-        "path": "gen",
-        "hidden": false,
-        "component": "tool/gen/index",
-        "meta": {
-          "title": "代码生成",
-          "icon": "code"
-        }
-      }, {
-        "name": "Swagger",
-        "path": "swagger",
-        "hidden": false,
-        "component": "tool/swagger/index",
-        "meta": {
-          "title": "系统接口",
-          "icon": "swagger"
-        }
-      }]
+      },]
     }, {
-      "name": "Http://ruoyi.vip",
-      "path": "http://ruoyi.vip",
+      "name": "https://shimo.im/docs/wpxgCdcYxKhYWrG8",
+      "path": "https://shimo.im/docs/wpxgCdcYxKhYWrG8",
       "hidden": false,
       "component": "Layout",
       "meta": {
-        "title": "若依官网",
+        "title": "开发者文档",
         "icon": "guide"
       }
     }]

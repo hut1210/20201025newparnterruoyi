@@ -1,11 +1,11 @@
 import request from '@/utils/request'
 
 // 查询菜单列表
-export function listMenu(query) {
+export function listMenu(data) {
   return request({
-    url: 'http://localhost:8090/system/menu/list',
-    method: 'get',
-    params: query
+    url: '/core/api/payment/recharge/list',
+    method: 'post',
+    data: data
   })
 }
 

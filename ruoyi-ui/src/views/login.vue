@@ -1,7 +1,7 @@
 <template>
   <div class="login">
     <el-form ref="formLogin" :model="formLogin" :rules="loginRules" class="login-form">
-      <h3 class="title">商户系统</h3>
+      <h3 class="title">Grepay商户系统</h3>
       <el-form-item prop="email">
         <el-input v-model="formLogin.email" type="text" auto-complete="off" placeholder="账号">
           <svg-icon slot="prefix" icon-class="user" class="el-input__icon input-icon" />
@@ -50,7 +50,7 @@
           size="medium"
           type="primary"
           style="width:100%;"
-          @click.native.prevent="handleLogin"
+          @click.native.prevent="handleLoginadd"
         >
           <span>注册</span>
          
@@ -98,11 +98,11 @@ export default {
     return {
       ok: false,
       formLogin: {
-        email: "",
-        pwd: "",
+        email: "aab0@163.com",
+        pwd: "123456",
         source: "PC",
-        nick: "",
-        cfpassword: ""
+        nick: "aa",
+        cfpwd: ""
       },
       ext :/^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+((\.[a-zA-Z0-9_-]{2,3}){1,2})$/,
       pwdRegex : /^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z]){8,30}/,
@@ -137,8 +137,13 @@ export default {
           this.$store
             .dispatch("Login", this.formLogin)
             .then(() => {
-              this.$router.push({ path: this.redirect || "/" });
-              self.ok = false;
+              debugger
+              self.getinfo()
+              this.$message({
+                  message: "登陆成功",
+                  type: "success"
+                });
+              
             })
             .catch(() => {
               this.loading = false;
@@ -146,12 +151,54 @@ export default {
         }
       });
     },
+    handleLoginadd() {
+      let self = this;
+      this.$refs.formLogin.validate(valid => {
+        if (valid) {
+          this.$store
+            .dispatch("Loginadd", this.formLogin)
+            .then(() => {
+              self.ok = false;
+              this.$message({
+                  message: "注册成功",
+                  type: "success"
+                });
+            })
+            .catch(() => {
+             
+            });
+        }
+      });
+    },
     toaddView() {
-      debugger
       let self = this;
       self.ok = true;
-    }
+    },
+    getinfo(){
+      
+      this.$store.dispatch('GetInfo').then(r => {
+        
+      let self = this;
+      if (r.code == 1000) {
+          self.$utils.setloc("userNickname", r.result.merchanDetail.companyName);
+          if(r.result.merchanDetail.status==1){
+            self.$utils.setloc("group_id", 1);//認證通過
+            self.$utils.setloc("countryCode", r.result.merchantAccount.countryCode);
+            self.$utils.setloc("currency", r.result.merchantAccount.currency);
+          }else if(r.result.merchanDetail.status==0 || r.result.merchanDetail.status==2){
+            self.$utils.setloc("group_id", 2);//正在認證
+          }else{
+            self.$utils.setloc("group_id", 0);//未通過或是沒認證
+          }
+        }else{
+          self.$utils.setloc("group_id", 0);
+        }
+        this.$router.push({ path: this.redirect || "/" });
+        // self.$router.push({ path: "/index" });
+    })
   }
+  },
+  
 };
 </script>
 

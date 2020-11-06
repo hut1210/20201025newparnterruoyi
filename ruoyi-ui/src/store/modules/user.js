@@ -1,5 +1,5 @@
-import { login, logout, getInfo } from '@/api/login'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { login, logout, getInfo ,loginadd} from '@/api/login'
+import { getToken, setToken, removeToken,setloc ,getloc,removeloc} from '@/utils/auth'
 
 const user = {
   state: {
@@ -31,59 +31,72 @@ const user = {
   actions: {
     // 登录
     Login({ commit }, userInfo) {
+    
       const email = userInfo.email.trim()
       const pwd = userInfo.pwd
-      const nick = userInfo.nick
-      const cfpassword = userInfo.cfpassword
-      const source = userInfo.source
       return new Promise((resolve, reject) => {
-        login(email, pwd,nick,cfpassword,source).then(res => {
+        login(email, pwd).then(res => {
           debugger
-          setToken( res.result.access_token)
-          commit('SET_TOKEN', res.result.access_token)
-          resolve()
-          
+         
+            setToken(res.result.access_token)
+            commit('SET_TOKEN', res.result.access_token)
+            setloc("token", res.result.access_token)
+            resolve()
+         
         }).catch(error => {
           reject(error)
         })
       })
     },
-    
+    // 登录
+    Loginadd({ commit }, userInfo) {
+      const email = userInfo.email.trim()
+      const pwd = userInfo.pwd
+      const nick = userInfo.nick
+      const cfpassword = userInfo.cfpwd
+      const source = userInfo.source
+      return new Promise((resolve, reject) => {
+        loginadd(email, pwd,nick,cfpassword,source).then(res => {
+            resolve()
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
 
 
     // 获取用户信息
     GetInfo({ commit, state }) {
+    
       return new Promise((resolve, reject) => {
-        getInfo(state.token).then(res => {
-          const user = res.user
-          const avatar = user.avatar == "" ? require("@/assets/image/profile.jpg") : process.env.VUE_APP_BASE_API + user.avatar;
-          if (res.roles && res.roles.length > 0) { // 验证返回的roles是否是一个非空数组
-            commit('SET_ROLES', res.roles)
-            commit('SET_PERMISSIONS', res.permissions)
-          } else {
-            commit('SET_ROLES', ['ROLE_DEFAULT'])
-          }
-          commit('SET_NAME', user.userName)
+        getInfo(state.token).then(r => {
+          const avatar = require("@/assets/image/profile.jpg") ;
+          commit('SET_ROLES', ['ROLE_DEFAULT'])
           commit('SET_AVATAR', avatar)
-          resolve(res)
+          resolve(r)
         }).catch(error => {
           reject(error)
         })
       })
     },
+   
     
     // 退出系统
     LogOut({ commit, state }) {
       return new Promise((resolve, reject) => {
-        logout(state.token).then(() => {
+        
+        // logout(state.token).then(() => {
           commit('SET_TOKEN', '')
           commit('SET_ROLES', [])
           commit('SET_PERMISSIONS', [])
+          removeloc('token')
+          removeloc('userNickname')
+          removeloc("group_id");
           removeToken()
           resolve()
-        }).catch(error => {
-          reject(error)
-        })
+        // }).catch(error => {
+        //   reject(error)
+        // })
       })
     },
 

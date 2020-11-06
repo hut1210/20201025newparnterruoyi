@@ -12,8 +12,10 @@ import '@/assets/styles/ruoyi.scss' // ruoyi css
 import App from './App'
 import store from './store'
 import router from './router'
+import less from 'less'
 import permission from './directive/permission'
 import utils from './utils/auth.js'
+import request from './utils/request.js'
 import './assets/icons' // icon
 import './permission' // permission control
 import { getDicts } from "@/api/system/dict/data";
@@ -51,8 +53,9 @@ Vue.component('Pagination', Pagination)
 Vue.component('RightToolbar', RightToolbar)
 // 将公共方法绑定到全局
 Vue.prototype.$utils = utils
+Vue.prototype.$request = request
 Vue.use(permission)
-
+Vue.use(less)
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api
