@@ -21,7 +21,8 @@
             class="demo-ruleForm"
           >
             <div class="search-input" style="
-            padding: 0 26%;">
+           display: flex;justify-content: center;align-items: center;flex-direction: column;">
+            <div class="renzhengmessage" >
               <el-form-item label="公司名称：" prop="companyName">
                 <el-input
                   v-model="ruleForm1.companyName"
@@ -138,35 +139,36 @@
                   readonly
                 ></el-input>
               </el-form-item>
+            </div>
               <p  class="attestation-title" >
                 认证文件:
               </p>
-              <div class="uploud-file" style="padding-left: 20px">
+              <div class="uploud-file" style="padding-right: 10%;display: flex;flex-direction: column;justify-content: center;align-items: flex-start;">
                 <el-form-item label="商户开户资料信息表：" prop="username">
-                    <a   download="商户开户资料信息表.pdf" @click="dowload(merchantInfoFile)"  href="#" >下载</a>
-                  <!-- <a href="#">预览</a>
-                  <embed src="merchantInfoFile" v-if="swf"/> -->
-                </el-form-item>
-                <el-form-item label="公司营业执照：" prop="realname">
-                  <a download="公司营业执照.pdf" @click="dowload(bizRegistCertificateFile)"  href="#"  >下载</a>
-                  <!-- <a href="#">预览</a> -->
-                </el-form-item>
-                <el-form-item label="公司注册证书：" prop="username">
-                  <a   download="公司注册证书.pdf"  @click="dowload(certificateIncorporationFile)" href="#" >下载</a>
-                  <!-- <a href="#">预览</a> -->
-                </el-form-item>
-                <el-form-item label="法人身份证：" prop="realname">
-                  <a download="法人身份证.pdf" @click="dowload(idFile)" href="#"  >下载</a>
-                  <!-- <a href="#">预览</a> -->
-                </el-form-item>
-                <el-form-item label="公司章程：" prop="username">
-                  <a download="公司章程.pdf" @click="dowload(articlesFile)" href="#" >下载</a>
-                  <!-- <a href="#">预览</a> -->
-                </el-form-item>
-                <el-form-item label="银行账户开户证明：" prop="realname">
-                  <a href="#"  download="银行账户开户证明.pdf"  @click="dowload(bankAccountFile)"  >下载</a>
-                  <!-- <a href="#">预览</a> -->
-                </el-form-item>
+                  <a   download="商户开户资料信息表.pdf" @click="dowload(merchantInfoFile)"  href="#" >下载</a>
+                <!-- <a href="#">预览</a>
+                <embed src="merchantInfoFile" v-if="swf"/> -->
+              </el-form-item>
+              <el-form-item label="公司营业执照：" prop="realname">
+                <a download="公司营业执照.pdf" @click="dowload(bizRegistCertificateFile)"  href="#"  >下载</a>
+                <!-- <a href="#">预览</a> -->
+              </el-form-item>
+              <el-form-item label="公司注册证书：" prop="username">
+                <a   download="公司注册证书.pdf"  @click="dowload(certificateIncorporationFile)" href="#" >下载</a>
+                <!-- <a href="#">预览</a> -->
+              </el-form-item>
+              <el-form-item label="法人身份证：" prop="realname">
+                <a download="法人身份证.pdf" @click="dowload(idFile)" href="#"  >下载</a>
+                <!-- <a href="#">预览</a> -->
+              </el-form-item>
+              <el-form-item label="公司章程：" prop="username">
+                <a download="公司章程.pdf" @click="dowload(articlesFile)" href="#" >下载</a>
+                <!-- <a href="#">预览</a> -->
+              </el-form-item>
+              <el-form-item label="银行账户开户证明：" prop="realname">
+                <a href="#"  download="银行账户开户证明.pdf"  @click="dowload(bankAccountFile)"  >下载</a>
+                <!-- <a href="#">预览</a> -->
+              </el-form-item>
               </div>
               <!-- 开通业务 -->
               <!-- <div>
@@ -180,7 +182,7 @@
         </div>
       </div>
       <!-- 查询 -->
-      <div v-else class="search_box">
+      <div v-else class="search_box search-updaterenzheng">
         <p class="attestation-title">填写商户认证信息:</p>
         <el-form
           :model="ruleForm"
@@ -188,7 +190,12 @@
           ref="ruleForm"
           class="demo-ruleForm"
         >
-          <div class="search-input">
+          <div class="search-input" >
+            <div class="renzhengmessage" style="
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;">
             <el-form-item label="公司名称：" prop="companyName">
               <el-input
                 v-model="ruleForm.companyName"
@@ -287,10 +294,11 @@
                 clearable
               ></el-input>
             </el-form-item>
+         
             <p  class="attestation-title">
               上传认证文件:
             </p>
-            <div class="uploud-file" style="padding-left: 20px">
+            <div class="uploud-file" style="padding-left: 8%;display: flex;flex-direction: column;align-items: flex-start;">
               <el-form-item label="商户开户资料信息表：" prop="username">
                 <el-upload
                   class="upload-demo"
@@ -435,6 +443,7 @@
             <el-button type="primary" size="mini" @click="submitForm('ruleForm')">保存</el-button>
             <el-button type="danger" size="mini" @click="resetclick">关闭</el-button>
           </el-form-item>
+        </div>
           </div>
         </el-form>
       </div>
@@ -445,7 +454,7 @@
 <script>
   import {
     addManage,
-    fileadd,
+    fileaddfile,
     getJobmess
 } from "@/api/system/user";
 export default {
@@ -467,7 +476,7 @@ export default {
       flag: false,
       groupState: false,
       renzhengtype: this.$route.params.type ? this.$route.params.type : "1",
-      actions:  "http://test.gettin.in/core/api/files/upload",//this.$api.getUrlTitle()+
+      actions: this.$utils.getUrlTitle()+ "/core/api/files/upload",//this.$api.getUrlTitle()+
       fileList: [],
       groupData: [],
       tagsData: [],
@@ -597,7 +606,7 @@ export default {
       // alert(this.fileList[0].name)
       console.log(this.objfile);
       let self = this;
-      addManage(self.ruleForm).then((response) => {
+      fileaddfile(self.objfile).then((response) => {
         
              
                 self.$utils.setloc("group_id", 2);//認證通過
@@ -623,7 +632,7 @@ export default {
       
       let self = this;
       getJobmess().then((r) => {
-        debugger
+        
         if (r.code == 1000) {
           self.ruleForm1 = r.result.merchanDetail;
           self.merchantInfoFile=r.result.certificationDetail.merchantInfoFile;
@@ -665,9 +674,17 @@ export default {
   }
 };
 </script>
+<style>
+@media (max-width:550px) {
+    .renzheng-look .search_box .renzhengmessage .el-input__inner{
+    width: 250px !important;
+    font-size: 14px !important;
+  }
+}
 
-<style lang="less"  src="./add-user.less"></style>
+</style>
 <style scoped>
+
 .add-manage-info .radio-box {
   line-height: 4.375rem !important;
   width: 32.125rem;
@@ -686,4 +703,14 @@ export default {
   background: #66ce90;
   border-color: #66ce90;
 }
+.renzhengmessage .el-form-item{
+  display: flex;
+  justify-content: space-between;
+}
 </style>
+<style lang="less"  src="./add-user.less">
+  
+
+</style>
+
+

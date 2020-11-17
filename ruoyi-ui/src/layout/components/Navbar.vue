@@ -9,7 +9,8 @@
       </template>
       <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
         <div class="avatar-wrapper">
-          <img :src="avatar" class="user-avatar">
+          <span>欢迎您：{{userNickname}}</span>
+          <!-- <img :src="avatar" class="user-avatar"> -->
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown">
@@ -45,6 +46,12 @@ export default {
     RuoYiGit,
     RuoYiDoc
   },
+  data(){
+    return{
+      userNickname:this.$utils.getloc('userNickname'),
+    }
+  }
+  ,
   computed: {
     ...mapGetters([
       'sidebar',

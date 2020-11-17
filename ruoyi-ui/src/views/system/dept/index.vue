@@ -9,7 +9,6 @@
       </el-form-item>
       <el-form-item label="付款状态:">
         <el-select v-model="form.status" placeholder="请选择">
-          <el-option>请选择</el-option>
           <el-option
             v-for="item in statusData"
             :key="item.value"
@@ -39,9 +38,9 @@
     >
     <el-table-column prop="id" label="付款单号" width></el-table-column>
     <el-table-column prop="payeeName" label="收款人姓名" width></el-table-column>
-    <el-table-column prop="payeeBankCode" label="收款人银行卡号" width></el-table-column>
+    <el-table-column prop="payeeAccount" label="收款人银行卡号" width></el-table-column>
     <el-table-column prop="amount" label="付款金额" width></el-table-column>
-    <el-table-column prop="" label="付款备注" width></el-table-column>
+    <el-table-column prop="message" label="付款备注" width></el-table-column>
     <el-table-column prop="status" label="付款状态" width>
       <template slot-scope="scope">
         <span
@@ -79,7 +78,7 @@
 </template>
 
 <script>
-import { listDept, getDept, delDept, addDept, updateDept, listDeptExcludeChild } from "@/api/system/dept";
+import { listDept} from "@/api/system/dept";
 
 export default {
   name: "Dept",
@@ -113,6 +112,10 @@ export default {
         name: ""
       },
       statusData: [
+      {
+          value: '',
+          label: '全部'
+        },
         {
           value: '0',
           label: '等待处理中'
@@ -134,8 +137,10 @@ export default {
     };
   },
   created() {
-    if (this.$route.params.id) {
-      this.orderId=this.$route.params.id
+    alert( this.$route.query)
+    debugger
+    if ( this.$route.query.detailid) {
+      this.orderId= this.$route.query.detailid
      
     }
     this.getList();
@@ -164,13 +169,14 @@ export default {
       let self = this;
       this.loading = true;
       let obj={
-          page: self.pageIndex,
+        page: self.pageIndex,
           size: self.pageSize,
-          orderId: self.orderId,
-          status: self.form.status,
-          name: self.form.name
+          orderId:self.orderId?self.orderId:null,
+          status:self.form.status?self.form.status:null,
+          name: self.form.name?self.form.name:null,
+          id: self.form.id?self.form.id:null,
       }
-      debugger
+      
       listDept(obj).then(r => {
         console.log(r);
           self.tableData = r.result.list;

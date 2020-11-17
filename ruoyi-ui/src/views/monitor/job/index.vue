@@ -9,7 +9,6 @@
       </el-form-item>
       <el-form-item label="申请单状态:">
         <el-select v-model="form.status" placeholder="请选择">
-          <el-option>请选择</el-option>
           <el-option
             v-for="item in statusData"
             :key="item.value"
@@ -152,6 +151,10 @@ export default {
      
       //订单状态，0审批中，1支付完成，2审核不通过，3审核通过，4支付处理中，5支付处理失败
       statusData: [
+      {
+          value: '',
+          label: '全部'
+        },
         {
           value: '0',
           label: '审批中'
@@ -221,16 +224,16 @@ handleSizeChange(val) {
     /** 查询菜单列表 */
    
     getList() {
-      debugger
+      
       let self = this;
       self.loading = true;
       let obj={
         page: self.pageIndex,
           size: self.pageSize,
-          startTime: self.formatDate(self.form.startime[0]),
-          endTime: self.formatDate(self.form.startime[1]),
-          status: self.form.status?self.form.status:0,//订单状态，0审批中，1支付完成，2审核不通过，3审核通过，4支付处理中，5支付处理失败
-          billId: self.form.billId,//流水号，支持模糊查询
+          startTime: self.form.startime ?self.formatDate(self.form.startime[0]):null,
+          endTime:self.form.startime ?self.formatDate(self.form.startime[1]):null,
+          status:  self.form.status?self.form.status:null,//订单状态，0审批中，1支付完成，2审核不通过，3审核通过，4支付处理中，5支付处理失败
+          billId: self.form.billId?self.form.billId:null,//流水号，支持模糊查询
       }
       listJob(obj).then(r => {
          //console.log(r.data.total_count);
@@ -245,13 +248,14 @@ handleSizeChange(val) {
     },
      //修改
      editRow(row) {
-      let id = row.id;
+       debugger
       this.$router.push({
         path: "/monitor/dept",
-        params: {
-          id: id,
+        query: {
+          detailid:row.id,
         }
       });
+      console.log(this.$router);
     },
   },
   mounted() {
@@ -259,3 +263,24 @@ handleSizeChange(val) {
   },
 };
 </script>
+<style>
+  @media (max-width:550px) {
+    .el-picker-panel{
+      left:0 !important;
+    }
+     .el-date-range-picker__content{
+    width: 50%;
+    }
+    .el-date-range-picker .el-picker-panel__body{
+    
+    width: 600px;
+    }
+    
+    .el-date-range-picker__time-header{
+      width: 100%;
+    }
+    .el-date-range-picker__content{
+      padding:0;
+    }
+}
+</style>

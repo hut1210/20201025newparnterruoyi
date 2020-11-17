@@ -108,7 +108,7 @@
             class="demo-ruleForm"
             label-position="right" 
           >
-            <div class="search-input">
+            <div class="search-input" >
               <el-form-item label="币种：">
                 <el-select v-model="formchongzhi.currency" placeholder="充值币种">
                   <el-option label="卢比" value="INR"></el-option>
@@ -169,7 +169,7 @@
         @hideModal="hideModal1"
        
       >
-        <div class="modify-window">
+        <div class="modify-window modify-tixian">
           <el-form
             :model="formtixian"
             :rules="ruletx"
@@ -430,7 +430,7 @@ export default {
   computed: {
     
     singleCharge: function() {
-      debugger
+      
       
       let singleCharges = this.rechargeSingleCharge +parseFloat(( this.rechargeRate * this.formchongzhi.amount ).toFixed(
         4
@@ -440,7 +440,7 @@ export default {
       return singleCharges;
     },
     getamount: function() {
-      debugger
+      
       return ( this.formchongzhi.amount- this.formchongzhi.singleCharge).toFixed(4);
     },
     recivemoneyfuwu:function(){
@@ -490,8 +490,9 @@ export default {
     },
      //获取公司列表
      lookManage() {
+       
       let self = this;
-      this.$store.dispatch('GetInfo').then(r => {
+      getJobmess({}).then(r => {
           this.objmessge = r.result.merchantAccount;
           self.$utils.setloc(
             "userNickname",
@@ -509,7 +510,7 @@ export default {
      } )
     },
     btModifyWindow(v){
-      debugger
+      
       
       if(v==1){
         this.ModifyWindow=true;
@@ -549,9 +550,9 @@ export default {
     addManagecz() {
       let self = this;
       console.log(self.formchongzhi);
-      debugger
+      
       requestAddManagecz(self.formchongzhi).then((r) => {
-        debugger
+        
           if (r.code == 1000) {
             this.$message({
               message: r.info,
@@ -591,7 +592,7 @@ export default {
               type: "success"
             });
             self.$router.push({
-              path: "/user-list"
+              path: "/monitor/notice"
             });
           } else {
             this.$message.error(r.info);
@@ -654,7 +655,7 @@ export default {
 
   },
   created() {
-    alert(this.$utils.getloc('group_id'))
+   
   },
   mounted() {
      //此处信息可以放到x的state里面哟吼放
@@ -667,6 +668,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+ 
 .dashboard-editor-container {
   padding: 32px;
   background-color: rgb(240, 242, 245);
@@ -684,6 +686,7 @@ export default {
     padding: 8px;
   }
 }
+
  .search_box1 {
   width: 100%;
   height: 985px;
@@ -718,10 +721,35 @@ export default {
 }
 
 </style>
-<style  lang="less">
+<style  lang="scss" scoped>
   .el-select-dropdown{
       z-index: 99999999 !important;
     }
+    @media (max-width:550px) {
+  
+  .index-basic .modify-window .primarybut{
+    width: 90px !important;
+    height: 30px !important;
+    font-size: 14px !important;
+    margin-top: 36px !important;
+  }
+  
+  .index-basic .modify-window .down{
+    width: 90px !important;
+    height: 30px !important;
+    font-size: 14px !important;
+    margin-top: 36px !important;
+  }
+  .modify-tixian  .el-input{
+    width: 60%;
+  } 
+  .modify-tixian .el-form-item__error {
+    left: 40% !important;
+}  
+.modify-tixian  .el-form-item{
+  margin-left:0 !important;
+}
+}
 .index-basic{
      
   .file {
@@ -838,4 +866,5 @@ export default {
 		}
   }
 }
+
 </style>

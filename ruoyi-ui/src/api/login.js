@@ -13,7 +13,7 @@ export function login(email, pwd) {
     data: data
   })
 }
-debugger
+
 // 登录方法
 export function loginadd(email, pwd,nick,cfpassword,source) {
   const data = {

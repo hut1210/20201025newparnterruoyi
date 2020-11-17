@@ -70,7 +70,35 @@ function getSum (arr) {
   }
   return sum
 }
-
+export function getRoters1(){
+  const data={
+    "data": [{
+      "name": "System",
+      "path": "/system",
+      "hidden": false,
+      "redirect": "noRedirect",
+      "component": "Layout",
+      "alwaysShow": true,
+      "meta": {
+        "title": "商户信息管理",
+        "icon": "system"
+      },
+      "children": [
+        {
+          "name": "MerchantUser",
+          "path": "/merchantUser",
+          "hidden": false,
+          "component": "system/add-user/index",
+          "meta": {
+            "title": "商户资质信息",
+            "icon": "peoples"
+          }
+        },
+      ]
+    }, ]
+    }
+  return data.data
+}   
 export function getRoters(){
   const data={
     "data": [{
@@ -126,6 +154,16 @@ export function getRoters(){
           "title": "充值记录",
           "icon": "tree-table"
         }
+      }, 
+      {
+        "name": "Notice",
+        "path": "notice",
+        "hidden": false,
+        "component": "system/notice/index",
+        "meta": {
+          "title": "提现记录",
+          "icon": "drag"
+        }
       }, {
         "name": "Job",
         "path": "job",
@@ -179,6 +217,10 @@ export function getRoters(){
     }
   return data.data
   }
+  export function getUrlTitle(){
+    
+    return process.env.VUE_APP_BASE_API;
+  }
 export default {
   getloc,
   setloc,
@@ -186,5 +228,6 @@ export default {
   getparam,
   objcopy,
   sortA,
-  getSum
+  getSum,
+  getUrlTitle
 }

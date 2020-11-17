@@ -136,14 +136,25 @@ export default {
           this.loading = true;
           this.$store
             .dispatch("Login", this.formLogin)
-            .then(() => {
+            .then(r =>  {
               debugger
-              self.getinfo()
-              this.$message({
+              if (r.code == 1000) {
+                if(r.result.msg){
+                  self.$message.error(r.result.msg);
+                }
+                else{
+                  this.$message({
                   message: "登陆成功",
                   type: "success"
                 });
-              
+                self.$router.push({
+              path: "index",
+            })
+              }
+            } else {
+              self.$message.error(r.info);
+            }
+             
             })
             .catch(() => {
               this.loading = false;
@@ -173,30 +184,8 @@ export default {
     toaddView() {
       let self = this;
       self.ok = true;
-    },
-    getinfo(){
-      
-      this.$store.dispatch('GetInfo').then(r => {
-        
-      let self = this;
-      if (r.code == 1000) {
-          self.$utils.setloc("userNickname", r.result.merchanDetail.companyName);
-          if(r.result.merchanDetail.status==1){
-            self.$utils.setloc("group_id", 1);//認證通過
-            self.$utils.setloc("countryCode", r.result.merchantAccount.countryCode);
-            self.$utils.setloc("currency", r.result.merchantAccount.currency);
-          }else if(r.result.merchanDetail.status==0 || r.result.merchanDetail.status==2){
-            self.$utils.setloc("group_id", 2);//正在認證
-          }else{
-            self.$utils.setloc("group_id", 0);//未通過或是沒認證
-          }
-        }else{
-          self.$utils.setloc("group_id", 0);
-        }
-        this.$router.push({ path: this.redirect || "/" });
-        // self.$router.push({ path: "/index" });
-    })
-  }
+    }
+    
   },
   
 };

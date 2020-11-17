@@ -10,10 +10,9 @@ const service = axios.create({
   // axios中请求配置有baseURL选项，表示请求URL公共部分
   baseURL: process.env.VUE_APP_BASE_API,
   // 超时
-  timeout: 10000,
+  timeout: 1000000000,
   
 })
-var root = process.env.NODE_ENV == 'development' ? '/api' : 'http://api.teststwo.com'
 function filterNull (o) {
   for (var key in o) {
     if (o[key] === null) {
@@ -29,18 +28,47 @@ function filterNull (o) {
   }
   return o
 }
+const getNowTime = () => {
+  let date = new Date();
+  let year = date.getFullYear();
+  let month = date.getMonth() + 1;
+  let date1 = date.getDate();
+  let hour = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+  let minute =
+    date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+  let second =
+    date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
+  let milliSeconds = date.getMilliseconds();
+  var currentTime =
+    year +
+    "-" +
+    month +
+    "-" +
+    date1 +
+    " " +
+    hour +
+    ":" +
+    minute +
+    ":" +
+    second +
+    "." +
+    milliSeconds;
+  return currentTime;
+};
 // 自定义判断元素类型JS
 function toType (obj) {
   return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
 }
 // request拦截器
 service.interceptors.request.use(config => {
-  debugger
+  
+  
   if (config.data && config.url!="/core/api/payment/paymentout") {
     config.data = filterNull(config.data)
     
   }
- let obj= "Bearer " + getToken()
+  
+ let obj= "Bearer " + getloc("token")
  
  if(config.url=="/gpauth/partner/merchant/users/login" || config.url=="/gpauth/partner/merchant/users/add"){
     obj="";
@@ -57,6 +85,26 @@ service.interceptors.request.use(config => {
   if (config.params ){
   config.params=(config.method == 'get' || config.method == 'delete' ? config.data : null)
 }
+debugger
+if (config.method == 'get') {
+  if(config.url.indexOf("?") > -1){
+    config.url += '&tp=' + getNowTime();
+    config.url = config.url;
+}else{
+  config.url += '?&tp=' + getNowTime();
+  config.url = config.url;
+}
+} else {
+  //console.log((params));
+  //if(typeof(params)=='string'){
+  try {
+    config.data.tp = getNowTime();
+  } catch (e) {
+    config.data = eval('(' + config.data + ')');
+    config.data.tp = getNowTime();
+    config.data = JSON.stringify(config.data);
+  }
+}
   return config
 }, error => {
     console.log(error)
@@ -65,7 +113,7 @@ service.interceptors.request.use(config => {
 
 // 响应拦截器
 service.interceptors.response.use(res => {
-  debugger
+  
     // 未设置状态码则默认成功状态
     const code = res.data.code || 200;
     // 获取错误信息
@@ -117,7 +165,5 @@ service.interceptors.response.use(res => {
   }
 )
         
-export function getUrlTitle(){
-  return root;
-}
+
 export default service

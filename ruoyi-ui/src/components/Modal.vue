@@ -176,4 +176,15 @@ export default {
   border-bottom-left-radius: 13px;
   border-bottom-right-radius: 13px;
 }
+@media (max-width:550px) {
+  .modal-container{
+    margin: 0 auto;
+    width: 24rem !important;
+    height: 90% !important;
+    padding: 1rem;
+   
+  }
+ 
+}
+
 </style>

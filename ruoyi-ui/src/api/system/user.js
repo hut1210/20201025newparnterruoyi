@@ -10,7 +10,7 @@ export function addManage(data) {
 }
 
 // 商户认证信息文件提交
-export function fileadd(data) {
+export function fileaddfile(data) {
   return request({
     url: '/gpmanage/partner/merchant/certif',
     method: 'post',

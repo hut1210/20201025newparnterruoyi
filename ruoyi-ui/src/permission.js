@@ -11,11 +11,10 @@ const whiteList = ['/login', '/auth-redirect', '/bind', '/register']
 // 参数过滤函数
 
 router.beforeEach((to, from, next) => {
-  debugger
+  
   NProgress.start()
   if (getToken() ) {
     /* has token*/
-    debugger
     if (to.path === '/login') {
       next({ path: '/' })
       NProgress.done()

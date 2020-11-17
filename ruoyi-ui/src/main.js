@@ -15,13 +15,14 @@ import router from './router'
 import less from 'less'
 import permission from './directive/permission'
 import utils from './utils/auth.js'
-import request from './utils/request.js'
+import requests from './utils/request.js'
 import './assets/icons' // icon
 import './permission' // permission control
 import { getDicts } from "@/api/system/dict/data";
 import { getConfigKey } from "@/api/system/config";
 import { parseTime, resetForm, addDateRange, selectDictLabel, selectDictLabels, download, handleTree } from "@/utils/ruoyi";
 import Pagination from "@/components/Pagination";
+
 //自定义表格工具扩展
 import RightToolbar from "@/components/RightToolbar"
 
@@ -53,7 +54,7 @@ Vue.component('Pagination', Pagination)
 Vue.component('RightToolbar', RightToolbar)
 // 将公共方法绑定到全局
 Vue.prototype.$utils = utils
-Vue.prototype.$request = request
+Vue.prototype.$requests = requests
 Vue.use(permission)
 Vue.use(less)
 /**

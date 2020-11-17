@@ -1,7 +1,7 @@
 import { constantRoutes } from '@/router'
 import { getRouters } from '@/api/menu'
 import Layout from '@/layout/index'
-import { getToken,getRoters } from '@/utils/auth'
+import { getToken,getRoters,getRoters1,getloc } from '@/utils/auth'
 
 const permission = {
   state: {
@@ -17,11 +17,20 @@ const permission = {
   actions: {
     // 生成路由
     GenerateRoutes({ commit }) {
+      
       return new Promise(resolve => {
+        
+        let accessedRoutes
         // 向后端请求路由数据
+     if(getloc("group_id")!=1){
      
-          const accessedRoutes = filterAsyncRouter(getRoters())
-          accessedRoutes.push({ path: '*', redirect: '/404', hidden: true })
+       console.log(getloc("group_id"))
+           accessedRoutes = filterAsyncRouter(getRoters1())
+        }else{
+         accessedRoutes = filterAsyncRouter(getRoters())
+         
+        }
+        accessedRoutes.push({ path: '*', redirect: '/404', hidden: true })
           commit('SET_ROUTES', accessedRoutes)
           resolve(accessedRoutes)
         

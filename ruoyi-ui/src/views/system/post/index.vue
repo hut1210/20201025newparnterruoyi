@@ -65,6 +65,7 @@
     <el-table-column prop="paytypeName" label="支付方式"  width="160">
     </el-table-column>
     <el-table-column prop="paytypeRate" label="订单费率" width="160" ></el-table-column>
+    <el-table-column prop="paytypeSingleCharge" label="单笔费率" width="160" ></el-table-column>
     <el-table-column prop="countryCode" label="国家码" width="160"></el-table-column>
     <el-table-column prop="currency" label="币种代码" width="160"></el-table-column>
     <el-table-column prop="merchantOrderId" label="商户订单ID" width="250"></el-table-column>
@@ -141,8 +142,8 @@ export default {
       statusData: [],
       statusDatas: [
       {
-          value: '',
-          label: '请选择'
+          value: "",
+          label: "全部"
         },
         {
           value: '0',
@@ -195,7 +196,7 @@ export default {
 },
 //获取支付方式
 getType() {
-  debugger
+  
       let self = this;
       getTypepost({}).then(r => {
           self.statusData = r.result
@@ -217,18 +218,18 @@ handleSizeChange(val) {
     /** 查询菜单列表 */
    
     getList() {
-      debugger
+      
       let self = this;
       self.loading = true;
       let obj={
         "pageNum":self.pageIndex,
     "size":self.pageSize,
-    "orderID":self.form.merchantId,
-    "merchantOrderID":self.form.merchantOrderId,
-    "paytp":self.form.paytypeId,
-    "status":self.form.status,
-    "startTime":self.formatDate(self.form.startime[0]),
-    "endTime":self.formatDate(self.form.startime[1])
+    "orderID":self.form.merchantId?self.form.merchantId:null,
+    "merchantOrderID":self.form.merchantOrderId?self.form.merchantOrderId:null,
+    "paytp":self.form.paytypeId?self.form.paytypeId:null,
+    "status":self.form.status?self.form.status:null,
+    "startTime":self.form.startime ?self.formatDate(self.form.startime[0]):null,
+    "endTime":self.form.startime ?self.formatDate(self.form.startime[1]):null
       }
       listPost(obj).then(r => {
          //console.log(r.data.total_count);
@@ -290,3 +291,24 @@ handleSizeChange(val) {
   },
 };
 </script>
+<style>
+  @media (max-width:550px) {
+    .el-picker-panel{
+      left:0 !important;
+    }
+     .el-date-range-picker__content{
+    width: 50%;
+    }
+    .el-date-range-picker .el-picker-panel__body{
+    
+    width: 600px;
+    }
+    
+    .el-date-range-picker__time-header{
+      width: 100%;
+    }
+    .el-date-range-picker__content{
+      padding:0;
+    }
+}
+</style>

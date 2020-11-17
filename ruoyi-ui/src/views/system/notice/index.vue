@@ -1,344 +1,276 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="公告标题" prop="noticeTitle">
+    <el-form :model="form" ref="form" :inline="true" v-show="showSearch">
+      <el-form-item label="提现申请单号:">
         <el-input
-          v-model="queryParams.noticeTitle"
-          placeholder="请输入公告标题"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
+          v-model="form.applyId"
+          placeholder="请输入提现申请单号"
+        ></el-input>
       </el-form-item>
-      <el-form-item label="操作人员" prop="createBy">
-        <el-input
-          v-model="queryParams.createBy"
-          placeholder="请输入操作人员"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="类型" prop="noticeType">
-        <el-select v-model="queryParams.noticeType" placeholder="公告类型" clearable size="small">
+      <el-form-item label="提现状态:">
+        <el-select v-model="form.status" placeholder="请选择">
           <el-option
-            v-for="dict in typeOptions"
-            :key="dict.dictValue"
-            :label="dict.dictLabel"
-            :value="dict.dictValue"
-          />
+            v-for="item in statusData"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          >
+          </el-option>
         </el-select>
       </el-form-item>
+      <el-form-item label="提现申请时间:" prop>
+        <el-date-picker
+          style="height: 2.5rem;"
+          class="ydateinput"
+          v-model="form.startime"
+          type="datetimerange"
+          format="yyyy-MM-dd HH:mm:ss"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          
+        ></el-date-picker>
+      </el-form-item>
       <el-form-item>
-        <el-button type="cyan" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+        <el-button type="cyan" icon="el-icon-search" size="mini" @click="onSubmit">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-          v-hasPermi="['system:notice:add']"
-        >新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['system:notice:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['system:notice:remove']"
-        >删除</el-button>
-      </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
-
-    <el-table v-loading="loading" :data="noticeList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="序号" align="center" prop="noticeId" width="100" />
-      <el-table-column
-        label="公告标题"
-        align="center"
-        prop="noticeTitle"
-        :show-overflow-tooltip="true"
-      />
-      <el-table-column
-        label="公告类型"
-        align="center"
-        prop="noticeType"
-        :formatter="typeFormat"
-        width="100"
-      />
-      <el-table-column
-        label="状态"
-        align="center"
-        prop="status"
-        :formatter="statusFormat"
-        width="100"
-      />
-      <el-table-column label="创建者" align="center" prop="createBy" width="100" />
-      <el-table-column label="创建时间" align="center" prop="createTime" width="100">
+    <el-table
+      v-loading="loading"
+      :data="tableData"
+      row-key="menuId"
+      :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+    >
+    <el-table-column
+          prop="applyId"
+          label="提现申请单号"
+          width=""
+        ></el-table-column>
+        <el-table-column
+          prop="amount"
+          label="提现金额"
+          width=""
+        ></el-table-column>
+        <el-table-column
+          prop="serviceFee"
+          label="提现服务费"
+          width=""
+        ></el-table-column>
+        <el-table-column
+          prop="toAccount"
+          label="提现银行账户"
+          width=""
+        ></el-table-column>
+        <el-table-column
+          prop="company_name"
+          label="提现状态"
+          width=""
+        >
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
+          <span
+          v-if="scope.row.status==1"
+            size="mini"
+          >待审核</span>
+          <span
+          v-else-if="scope.row.status==2"
+            size="mini"
+          >审核通过，通道提现中</span>
+          <span
+          v-else-if="scope.row.status==3"
+            size="mini"
+          >提现成功</span>
+          <span
+          v-else-if="scope.row.status==4"
+          size="mini"
+        >提现失败</span>
+          <span
+          v-else-if="scope.row.status==5"
+          size="mini"
+        >审核拒绝</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:notice:edit']"
-          >修改</el-button>
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['system:notice:remove']"
-          >删除</el-button>
-        </template>
-      </el-table-column>
+        <el-table-column
+        prop="createTime"
+        label="申请提现时间"
+        width=""
+      ></el-table-column>
+      <el-table-column
+      prop="updateTime"
+      label="更新时间"
+      width=""
+    ></el-table-column>
     </el-table>
-
-    <pagination
-      v-show="total>0"
-      :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
-      @pagination="getList"
-    />
-
-    <!-- 添加或修改公告对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="780px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="公告标题" prop="noticeTitle">
-              <el-input v-model="form.noticeTitle" placeholder="请输入公告标题" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="公告类型" prop="noticeType">
-              <el-select v-model="form.noticeType" placeholder="请选择">
-                <el-option
-                  v-for="dict in typeOptions"
-                  :key="dict.dictValue"
-                  :label="dict.dictLabel"
-                  :value="dict.dictValue"
-                ></el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item label="状态">
-              <el-radio-group v-model="form.status">
-                <el-radio
-                  v-for="dict in statusOptions"
-                  :key="dict.dictValue"
-                  :label="dict.dictValue"
-                >{{dict.dictLabel}}</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item label="内容">
-              <editor v-model="form.noticeContent" :min-height="192"/>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
-      </div>
-    </el-dialog>
+     <!-- 分页 -->
+     <el-pagination
+     @current-change="handleCurrentChange"
+     :page-size="pageSize"
+     prev-text="上一页"
+     next-text="下一页"
+     layout="prev, pager, next, jumper"
+     :total="total"
+   >
+   </el-pagination>
   </div>
 </template>
 
 <script>
-import { listNotice, getNotice, delNotice, addNotice, updateNotice, exportNotice } from "@/api/system/notice";
+import { listNotice} from "@/api/system/notice";
 import Editor from '@/components/Editor';
 
 export default {
   name: "Notice",
-  components: {
-    Editor
-  },
   data() {
     return {
       // 遮罩层
       loading: true,
-      // 选中数组
-      ids: [],
-      // 非单个禁用
-      single: true,
-      // 非多个禁用
-      multiple: true,
       // 显示搜索条件
       showSearch: true,
-      // 总条数
-      total: 0,
-      // 公告表格数据
-      noticeList: [],
+      // 菜单表格树数据
+      menuList: [],
+      // 菜单树选项
+      menuOptions: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
       open: false,
-      // 类型数据字典
+      // 显示状态数据字典
+      visibleOptions: [],
+      // 菜单状态数据字典
       statusOptions: [],
-      // 状态数据字典
-      typeOptions: [],
       // 查询参数
       queryParams: {
-        pageNum: 1,
-        pageSize: 10,
-        noticeTitle: undefined,
-        createBy: undefined,
-        status: undefined
+        menuName: undefined,
+        visible: undefined
       },
       // 表单参数
-      form: {},
-      // 表单校验
-      rules: {
-        noticeTitle: [
-          { required: true, message: "公告标题不能为空", trigger: "blur" }
-        ],
-        noticeType: [
-          { required: true, message: "公告类型不能为空", trigger: "blur" }
-        ]
-      }
+      form: {
+        startime:[],
+        status: "",
+        applyId: ""
+      },
+      //状态，1-待审核 2-审核通过，通道提现中 3-提现成功 4-提现失败 5-审核拒绝
+      statusData: [
+      {
+          value: "",
+          label: "全部"
+        },
+        {
+          value: 1,
+          label: "待审核"
+        },
+        {
+          value: 2,
+          label: "审核通过"
+        },
+        {
+          value: 3,
+          label: "提现成功"
+        },
+        {
+          value: 4,
+          label: "提现失败"
+        },
+        {
+          value: 5,
+          label: "审核拒绝"
+        },
+      ],
+      tableData: [],
+      pageIndex: 1,
+      total: 0,
+      pageSize: 10 //每页显示条数
     };
   },
   created() {
-    this.getList();
-    this.getDicts("sys_notice_status").then(response => {
-      this.statusOptions = response.data;
-    });
-    this.getDicts("sys_notice_type").then(response => {
-      this.typeOptions = response.data;
-    });
+    this.getdate();
   },
   methods: {
-    /** 查询公告列表 */
-    getList() {
-      this.loading = true;
-      listNotice(this.queryParams).then(response => {
-        this.noticeList = response.rows;
-        this.total = response.total;
-        this.loading = false;
-      });
+    //时间 获取
+    getdate(){
+      var myDate = new Date();
+      this.form.startime.push(new Date( myDate.getFullYear(), myDate.getMonth(),  myDate.getDate(), 0, 0))
+      this.form.startime.push(new Date( myDate.getFullYear(), myDate.getMonth(),  myDate.getDate(), 23, 59))
+      console.log('startT',this.form.startime[0])
+      console.log('endT',this.form.startime[1])
     },
-    // 公告状态字典翻译
-    statusFormat(row, column) {
-      return this.selectDictLabel(this.statusOptions, row.status);
+    formatDate:function (date) {  
+    var y = date.getFullYear();  
+    var m = date.getMonth() + 1;  
+    m = m < 10 ? ('0' + m) : m;  
+    var d = date.getDate();  
+    d = d < 10 ? ('0' + d) : d;  
+    var h = date.getHours();  
+    h = h < 10 ? ('0' + h) : h;
+    var minute = date.getMinutes();  
+    minute = minute < 10 ? ('0' + minute) : minute; 
+    var second= date.getSeconds();  
+    second = second < 10 ? ('0' + second) : second;  
+    return y + '-' + m + '-' + d+' '+h+':'+minute+':'+ second;  
+},
+  //查询
+  onSubmit() {
+    this.pageIndex = 1;
+    this.getList();
     },
-    // 公告状态字典翻译
-    typeFormat(row, column) {
-      return this.selectDictLabel(this.typeOptions, row.noticeType);
+handleSizeChange(val) {
+      console.log(`每页 ${val} 条`);
     },
-    // 取消按钮
-    cancel() {
-      this.open = false;
-      this.reset();
-    },
-    // 表单重置
-    reset() {
-      this.form = {
-        noticeId: undefined,
-        noticeTitle: undefined,
-        noticeType: undefined,
-        noticeContent: undefined,
-        status: "0"
-      };
-      this.resetForm("form");
-    },
-    /** 搜索按钮操作 */
-    handleQuery() {
-      this.queryParams.pageNum = 1;
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`);
+      this.pageIndex = val;
       this.getList();
+    },
+    /** 查询菜单列表 */
+    getList() {
+      
+      let self = this;
+      self.loading = true;
+      let obj={
+        page: self.pageIndex,
+          size: self.pageSize,
+          "startTime":self.form.startime ?self.formatDate(self.form.startime[0]):null,
+          "endTime":self.form.startime ?self.formatDate(self.form.startime[1]):null,
+          status: self.form.status?self.form.status:null,//状态，1-待审核 2-审核通过，通道提现中 3-提现成功 4-提现失败 5-审核拒绝
+          applyId: self.form.applyId,//流水号，支持模糊查询
+      }
+      listNotice(obj).then(r => {
+         //console.log(r.data.total_count);
+         self.tableData = r.result.list;
+          self.total = r.result.total;
+          self.loading = false;
+      }
+      );
     },
     /** 重置按钮操作 */
     resetQuery() {
-      this.resetForm("queryForm");
-      this.handleQuery();
+      this.getList();
     },
-    // 多选框选中数据
-    handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.noticeId)
-      this.single = selection.length!=1
-      this.multiple = !selection.length
-    },
-    /** 新增按钮操作 */
-    handleAdd() {
-      this.reset();
-      this.open = true;
-      this.title = "添加公告";
-    },
-    /** 修改按钮操作 */
-    handleUpdate(row) {
-      this.reset();
-      const noticeId = row.noticeId || this.ids
-      getNotice(noticeId).then(response => {
-        this.form = response.data;
-        this.open = true;
-        this.title = "修改公告";
-      });
-    },
-    /** 提交按钮 */
-    submitForm: function() {
-      this.$refs["form"].validate(valid => {
-        if (valid) {
-          if (this.form.noticeId != undefined) {
-            updateNotice(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess("修改成功");
-                this.open = false;
-                this.getList();
-              }
-            });
-          } else {
-            addNotice(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess("新增成功");
-                this.open = false;
-                this.getList();
-              }
-            });
-          }
-        }
-      });
-    },
-    /** 删除按钮操作 */
-    handleDelete(row) {
-      const noticeIds = row.noticeId || this.ids
-      this.$confirm('是否确认删除公告编号为"' + noticeIds + '"的数据项?', "警告", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }).then(function() {
-          return delNotice(noticeIds);
-        }).then(() => {
-          this.getList();
-          this.msgSuccess("删除成功");
-        }).catch(function() {});
-    }
-  }
+  },
+  mounted() {
+    this.getList();
+  },
 };
 </script>
+<style>
+  @media (max-width:550px) {
+    .el-picker-panel{
+      left:0 !important;
+    }
+     .el-date-range-picker__content{
+    width: 50%;
+    }
+    .el-date-range-picker .el-picker-panel__body{
+    
+    width: 600px;
+    }
+    
+    .el-date-range-picker__time-header{
+      width: 100%;
+    }
+    .el-date-range-picker__content{
+      padding:0;
+    }
+}
+</style>

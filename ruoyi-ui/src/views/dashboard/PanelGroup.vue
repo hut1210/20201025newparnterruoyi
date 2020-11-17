@@ -49,9 +49,9 @@
           <el-button size="medium" round @click="btModifyWindow(1)"
             >充值</el-button
           >
-          <!-- <el-button size="medium" round @click="btModifyWindow(2)"
+          <el-button size="medium" round @click="btModifyWindow(2)"
             >提现</el-button
-          > -->
+          > 
           <el-button size="medium" round @click="btModifyWindow(3)"
             >代付</el-button
           >
@@ -194,21 +194,17 @@ export default {
 
 
 @media (max-width:550px) {
-  .card-panel-description {
-    display: none;
+  .panel-group .card-panel .card-panel-icon-wrapper{
+    padding: 0 !important;
   }
-
-  .card-panel-icon-wrapper {
-    float: none !important;
-    width: 100%;
-    height: 100%;
-    margin: 0 !important;
-
-    .svg-icon {
-      display: block;
-      margin: 14px auto !important;
-      float: none !important;
-    }
+  .el-button--medium.is-round {
+    padding: 3px 3px;
+}
+  .panel-group .card-panel{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: nowrap;
   }
 }
 </style>

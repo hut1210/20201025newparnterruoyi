@@ -14,8 +14,10 @@
   color: #888888;
   text-align: right;
 }
-.add-manage-info .el-input__inner {
+.add-manage-info .renzheng-look .el-input__inner {
   width: 514px;
+}
+.add-manage-info .el-input__inner {
   height: 2.5rem !important;
   background: #ffffff;
   border: 1px solid #edebeb;
@@ -71,7 +73,7 @@
   height: 243px !important;
 }
 .add-manage-info .el-textarea__inner {
-  width: 514px;
+  width: 32.5rem;
   border: 1px solid #edebeb;
   border-radius: 5px;
   font-size: 18px;
@@ -94,5 +96,4 @@
 }
 .add-manage-info .renzheng-look .search_box .el-button {
   display: inline-block;
-  margin: 0 auto 0 14rem;
 }

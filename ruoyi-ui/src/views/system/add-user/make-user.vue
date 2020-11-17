@@ -13,11 +13,9 @@
       <div class="renzheng-look">
       <div  class="search_box" style="justify-content: flex-start;">
         <p class="attestation-title">商户配置参数:</p>
-        <el-form :model="ruleForm" :rules="rules" ref="ruleForm" class="demo-ruleForm" style="
-        display: flex;
-        justify-content: center;">
-          <div class="search-input" style="position:relative;">
-            <el-form-item label="商户号：" prop="">
+        <el-form :model="ruleForm" :rules="rules" ref="ruleForm" class="demo-ruleForm">
+          <div class="search-input search-renzhenglook" style="position: relative;display: flex;flex-direction: column;align-items: flex-start;">
+            <el-form-item label="商户号(merchantId)：" prop="">
               <el-input v-model="ruleForm.merchanDetail.merchantId"  readonly clearable></el-input>
             </el-form-item>
             <!-- <el-form-item label="应用名称：" prop="realname">
@@ -26,18 +24,19 @@
             <el-form-item label="APP_ID：" prop="app_id">
               <el-input v-model="ruleForm.merchantApp.app_id" placeholder="APP_ID" clearable readonly></el-input>
             </el-form-item>
-            <el-form-item label="APP_Secret：" prop="realname">
+            <el-form-item label="APP_KEY：" prop="realname">
               <el-input v-model="ruleForm.merchantApp.app_key" placeholder="APP_Secret" clearable readonly></el-input>
             </el-form-item>
             <el-form-item label="回调地址：" prop="callback_urls">
               <el-input
                 type="textarea"
                 class="textarea"
+                
                 v-model="ruleForm.merchantApp.callback_urls"
                
               ></el-input>
             </el-form-item>
-        <el-button type="primary"  size="mini" style="position: absolute; top: 50%;" @click="resetclick">返回</el-button>
+        <el-button type="primary"  size="mini" style="position: absolute; top: 50%; left: 10%;;" @click="resetclick">返回</el-button>
           </div>
         </el-form>
         
@@ -124,7 +123,7 @@ export default {
    
     //获取公司列表
     lookManage(){
-      debugger
+      
       let self = this;
       getJobmess({}).then((r) => {
         self.ruleForm=r.result
@@ -165,5 +164,20 @@ export default {
 .radio-box .el-radio__input.is-checked .el-radio__inner {
   background: #66ce90;
   border-color: #66ce90;
+}
+.search-renzhenglook .el-form-item{
+  display: flex;
+}
+.search-renzhenglook .el-input__inner{
+  font-size:14px !important;
+  width:540px;
+
+}
+.search-renzhenglook .el-form-item__label{
+min-width: 100px;
+    font-size: 0.8rem !important;
+}
+.search-renzhenglook .el-textarea__inner{
+  font-size: 14px !important;
 }
 </style>

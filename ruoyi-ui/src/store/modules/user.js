@@ -36,12 +36,12 @@ const user = {
       const pwd = userInfo.pwd
       return new Promise((resolve, reject) => {
         login(email, pwd).then(res => {
-          debugger
+          
          
             setToken(res.result.access_token)
             commit('SET_TOKEN', res.result.access_token)
             setloc("token", res.result.access_token)
-            resolve()
+            resolve(res)
          
         }).catch(error => {
           reject(error)
@@ -73,6 +73,20 @@ const user = {
           const avatar = require("@/assets/image/profile.jpg") ;
           commit('SET_ROLES', ['ROLE_DEFAULT'])
           commit('SET_AVATAR', avatar)
+          if (r.code == 1000) {
+            setloc("userNickname", r.result.merchanDetail.companyName);
+            if(r.result.merchanDetail.status==1){
+              setloc("group_id", 1);//認證通過
+              setloc("countryCode", r.result.merchantAccount.countryCode);
+              setloc("currency", r.result.merchantAccount.currency);
+            }else if(r.result.merchanDetail.status==0 || r.result.merchanDetail.status==2){
+              setloc("group_id", 2);//正在認證
+            }else{
+              setloc("group_id", 0);//未通過或是沒認證
+            }
+          }else{
+            setloc("group_id", 0);
+          }
           resolve(r)
         }).catch(error => {
           reject(error)
@@ -92,6 +106,8 @@ const user = {
           removeloc('token')
           removeloc('userNickname')
           removeloc("group_id");
+          removeloc('countryCode')
+          removeloc("currency");
           removeToken()
           resolve()
         // }).catch(error => {
