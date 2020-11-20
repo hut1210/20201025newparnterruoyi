@@ -174,7 +174,7 @@ export default {
           orderId:self.orderId?self.orderId:null,
           status:self.form.status?self.form.status:null,
           name: self.form.name?self.form.name:null,
-          id: self.form.id?self.form.id:null,
+          billId: self.form.id?self.form.id:null,
       }
       
       listDept(obj).then(r => {

@@ -255,7 +255,12 @@
                   :href="hrefscsv"
                   >下载模板</a
                 >
-                <P>（服务费将从您的付款金额中扣除）</P>
+                <P>（服务费将从您的付款金额中扣除<span style="
+                  font-size: 14px;
+                  color: #e01a1a;
+                  font-weight: bold;
+                  padding-left: 0.2rem;
+              ">禁止对公转账</span>）</P>
               </el-form-item>
   
               <el-form-item>
